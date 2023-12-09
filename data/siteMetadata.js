@@ -9,7 +9,7 @@ const siteMetadata = {
   siteUrl: 'https://dev.faddalibrahim.com',
   siteRepo: 'https://github.com/faddalibrahim/my-dev-blog',
   siteLogo: '/static/images/logo.png',
-  socialBanner: '/static/images/twitter-card.png',
+  socialBanner: '/static/images/faddal-twitter-card.jpg',
   github: 'https://github.com/faddalibrahim',
   twitter: 'https://twitter.com/FaddalIbrahim',
   linkedin: 'https://www.linkedin.com/in/faddalibrahim',
