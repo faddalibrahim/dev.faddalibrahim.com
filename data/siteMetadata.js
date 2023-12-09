@@ -2,15 +2,14 @@
 const siteMetadata = {
   title: 'Faddal Ibrahim',
   author: 'Faddal Ibrahim',
-  headerTitle: 'TailwindBlog',
-  description: 'Exploring my life\'s rectangle -- Programming, Design, Writing, Mathematics',
+  headerTitle: 'Faddal Ibrahim',
+  description: 'CS, SWE, UX, Math',
   language: 'en-us',
   theme: 'system', // system, dark or light
   siteUrl: 'https://dev.faddalibrahim.com',
-  siteRepo: 'https://github.com/timlrx/tailwind-nextjs-starter-blog',
+  siteRepo: 'https://github.com/faddalibrahim/my-dev-blog',
   siteLogo: '/static/images/logo.png',
   socialBanner: '/static/images/twitter-card.png',
-  mastodon: 'https://mastodon.social/@mastodonuser',
   github: 'https://github.com/faddalibrahim',
   twitter: 'https://twitter.com/FaddalIbrahim',
   linkedin: 'https://www.linkedin.com/in/faddalibrahim',
