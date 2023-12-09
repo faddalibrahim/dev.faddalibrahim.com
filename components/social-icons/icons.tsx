@@ -13,13 +13,38 @@ export function Facebook(svgProps: SVGProps<SVGSVGElement>) {
 
 export function Github(svgProps: SVGProps<SVGSVGElement>) {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" {...svgProps}><g className="stroke-[#222] dark:stroke-[#fff]" fill="none" stroke="#222" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5c.08-1.25-.27-2.48-1-3.5c.28-1.15.28-2.35 0-3.5c0 0-1 0-3 1.5c-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5c-.39.49-.68 1.05-.85 1.65c-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></g></svg>
+    <svg 
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      {...svgProps}>
+        <g 
+          className="stroke-[#222] dark:stroke-[#fff]"
+          fill="none"
+          stroke="#222"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2">
+            <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5c.08-1.25-.27-2.48-1-3.5c.28-1.15.28-2.35 0-3.5c0 0-1 0-3 1.5c-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5c-.39.49-.68 1.05-.85 1.65c-.17.6-.22 1.23-.15 1.85v4"/>
+            <path d="M9 18c-4.51 2-5-2-7-2"/>
+        </g>
+    </svg>
   )
 }
 
 export function Linkedin(svgProps: SVGProps<SVGSVGElement>) {
   return (
-   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" {...svgProps}><path className="fill-[#222] dark:fill-[#fff]" d="M12.001 9.55c.917-.937 2.111-1.55 3.5-1.55a5.5 5.5 0 0 1 5.5 5.5V21h-2v-7.5a3.5 3.5 0 1 0-7 0V21h-2V8.5h2v1.05Zm-7-3.05a1.5 1.5 0 1 1 0-3a1.5 1.5 0 0 1 0 3Zm-1 2h2V21h-2V8.5Z"/></svg>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    {...svgProps}>
+    <path 
+      className="fill-[#222] dark:fill-[#fff]"
+      d="M12.001 9.55c.917-.937 2.111-1.55 3.5-1.55a5.5 5.5 0 0 1 5.5 5.5V21h-2v-7.5a3.5 3.5 0 1 0-7 0V21h-2V8.5h2v1.05Zm-7-3.05a1.5 1.5 0 1 1 0-3a1.5 1.5 0 0 1 0 3Zm-1 2h2V21h-2V8.5Z"/>
+  </svg>
   )
 }
 
@@ -34,7 +59,22 @@ export function Mail(svgProps: SVGProps<SVGSVGElement>) {
 
 export function Twitter(svgProps: SVGProps<SVGSVGElement>) {
   return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" {...svgProps}><path className="stroke-[#222] dark:stroke-[#fff]" d="M8.288 21C15.832 21 19.96 14.4544 19.96 8.78772C19.96 8.60357 19.96 8.41943 19.952 8.23528C20.752 7.62425 21.448 6.87092 22 6.01715C21.248 6.36033 20.456 6.5947 19.64 6.69514C20.496 6.15945 21.136 5.31404 21.44 4.31798C20.632 4.8202 19.752 5.17175 18.832 5.3559C17.28 3.62324 14.68 3.53954 13.024 5.17175C11.96 6.21804 11.504 7.78328 11.84 9.2732C8.552 9.09742 5.472 7.46521 3.392 4.78671C2.304 6.74537 2.856 9.25646 4.664 10.512C4.008 10.4953 3.376 10.3111 2.8 9.9763C2.8 9.99305 2.8 10.0098 2.8 10.0265C2.8 12.0689 4.176 13.8266 6.096 14.2368C5.488 14.4126 4.856 14.4377 4.24 14.3121C4.776 16.0615 6.32 17.2585 8.072 17.292C6.616 18.4889 4.824 19.1334 2.976 19.1334C2.648 19.1334 2.32 19.1083 2 19.0748C3.88 20.3387 6.056 21 8.288 21Z" stroke="rgba(0,0,0,0.95)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+    <svg 
+      width="24" 
+      height="24" 
+      viewBox="0 0 24 24" 
+      fill="none" 
+      xmlns="http://www.w3.org/2000/svg" 
+      {...svgProps}>
+        <path 
+          className="stroke-[#222] dark:stroke-[#fff]"
+          d="M8.288 21C15.832 21 19.96 14.4544 19.96 8.78772C19.96 8.60357 19.96 8.41943 19.952 8.23528C20.752 7.62425 21.448 6.87092 22 6.01715C21.248 6.36033 20.456 6.5947 19.64 6.69514C20.496 6.15945 21.136 5.31404 21.44 4.31798C20.632 4.8202 19.752 5.17175 18.832 5.3559C17.28 3.62324 14.68 3.53954 13.024 5.17175C11.96 6.21804 11.504 7.78328 11.84 9.2732C8.552 9.09742 5.472 7.46521 3.392 4.78671C2.304 6.74537 2.856 9.25646 4.664 10.512C4.008 10.4953 3.376 10.3111 2.8 9.9763C2.8 9.99305 2.8 10.0098 2.8 10.0265C2.8 12.0689 4.176 13.8266 6.096 14.2368C5.488 14.4126 4.856 14.4377 4.24 14.3121C4.776 16.0615 6.32 17.2585 8.072 17.292C6.616 18.4889 4.824 19.1334 2.976 19.1334C2.648 19.1334 2.32 19.1083 2 19.0748C3.88 20.3387 6.056 21 8.288 21Z"
+          stroke="rgba(0,0,0,0.95)" 
+          stroke-width="1.5" 
+          stroke-linecap="round" 
+          stroke-linejoin="round">
+        </path>
+    </svg>
   )
 }
 
