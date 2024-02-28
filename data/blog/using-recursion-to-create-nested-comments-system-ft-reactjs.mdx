@@ -1,0 +1,129 @@
+---
+title: 'Using recursion to create a nested comments system (ft. ReactJS)'
+date: '2024-02-28'
+tags: ['data structures', 'algorithms', 'recursion']
+draft: false
+summary: 'build a recursive comment section with reactjs'
+---
+
+## Introduction
+
+Recursion – one of the initially crazy rides in your DSA journey that later becomes fun once you learn to navigate its streets. You often hear, 'just identify your base and recursive cases'. But its mechanics becoming overwhelming when there are more moving parts like when dealing with large recusrive trees with conditionals when its difficult to easily imagine the recursive tree.
+
+This post is not about teaching you recursion, but rather harnessing its power to create a nested comment section as seen on social media platforms.
+
+Therefore, to feel comfortable reading through to the end of this post, you must fit this profile.
+
+> you know basics of recursion
+
+> knowledge of depth-first search/traversal
+
+> (Optional) A little ReactJs (states, props) and Javascript/Typescript (filter, map)
+
+If you are still, here then you are good to go. Here is our roadmap
+
+1. Theory
+   In this section, we use an example recursive function as a template for how our nested comments would operate.
+
+   1. A basic recursive function
+   2. Comment Tree
+   3. Editting & Deleting with Depth-First Search/Traversal
+
+2. Application
+   Here, we built the actual comment section using ReactJS.
+
+   1. Comment Signature
+   2. Component Component
+   3. Rendering the Comments and their replies
+   4. Adding a new top-level comment
+   5. Adding a comment reply
+   6. Deleting a comment
+   7. Editting a comment
+
+3. Conclusion
+
+4. References
+
+# Theory
+
+## A basic recursive function
+
+This function is going to be a foundational reference point for how to build our component. It takes a positive integer, then it prints the integer and all other positive integers below it.
+
+```ts
+function printPositiveIntegersBelow(num: number): null {
+  // base case
+  if (num === 0) return
+
+  // recursive case
+  console.log(num)
+  printPositiveIntegersBelow(num - 1)
+}
+```
+
+`pPIB(5) -> 5
+    pPIB(4) -> 4
+        pPIB(3) -> 3
+            pPIB(2) -> 2
+                pPIB(1) -> 1
+                    pPIB(0) -> null`
+
+This function mimics the exact behavior of our comment section. We render a parent comment, then proceed to render all the sub comments in it. Assuming out comment
+
+The base case `if num === 0` is similar to saying `if there are no more sub comments` and
+the recusrive case `pPIB(num - 1)` is similar to the phrase `call the next child direct child`
+
+Therefore, we have
+
+```ts
+function logComment(comment) {
+  // base case
+  if (!comment || !comment.child) return
+
+  // recusrive
+  console.log(comment.text)
+  logComment(comment.child)
+}
+```
+
+However, the underlying assumption doesnt work. It makes sense if there is just one parent comment that has a single child comment, which in turn has a single child comment and so on. But NO! You are not Thanos, and reality cannot be what you WANT
+
+In reality, there are multiple top level comments. Each top level comment has a number of children. Each child has its own children and so on. Therefore we have a fucken TREE. Wow! That escalated so quickly!
+
+# DIAGRAM
+
+Lets modify the previous function to reflect reality,
+
+It basically becomes a depth-first traversal through the comment object to print the comment tree
+
+```ts
+interface Comment {
+  text: string
+  children: Comment[]
+}
+
+function logComment(comment: Comment) {
+  if (!comment) return
+
+  for (let i = 0; i < comment.children.length; i++) {
+    console.log(comment.text)
+    logComment(comment.child)
+  }
+}
+```
+
+## Editting and Deleting With DFS
+
+# Application
+
+## Comment Signature
+
+## Rendering Comments
+
+## Adding a Top-Level Comment
+
+## Adding a Child Comment (Reply)
+
+## Deleting a comment
+
+## Editting a comment
