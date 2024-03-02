@@ -8,9 +8,11 @@ summary: 'build a recursive comment section with reactjs'
 
 # Introduction
 
-Recursive thinking is one of the crazy rides in every DSA journey. Beyond just _figuring out the base and recursive cases_, the mechanics easily gets out of control, making it challenging to trace/imagine the flow properly. Whereas loops may in some cases be more applicable, recursion beats the game with elegance!
+Recursive thinking is one of the crazy rides in every DSA journey. Beyond just _*figuring out the base and recursive cases*_, the mechanics easily gets out of control, making it challenging to trace the flow properly. Whereas loops may, in some cases, be more applicable, recursion beats the game with elegance!
 
-Moreover, there are problems that are just too difficult or even impossible to solve without recursion. Example of such is the focus of this post. Note that this post is not to teach you about recursion. Hence, to feel comfortable following through to the end, you must fit the following profile.
+Moreover, there are problems that are just too difficult or even impossible to solve without recursion. Example of such is the focus of this post. Note that this post is not to teach you about recursion.
+
+Hence, to feel comfortable following through to the end, you must fit the following profile.
 
 1. you know the basics of recursion and have solved a few simple questions around it
 
@@ -35,7 +37,7 @@ Find below the roadmap
 
 ### A simple recursive function
 
-This function is going to be a foundational reference point and a low-level template for how our nested comments system will behave. It takes a positive integer, then it prints the integer and all other positive integers less than the input integer. Let's call it `printNumberLadder`
+This function is going to be a foundational reference point and a low-level template for how our nested comments system will behave. It takes an input positive integer, then it prints the integer and all other positive integers less than the input. Let's call it `printNumberLadder`
 
 ```ts
 function printNumberLadder(num: number) {
@@ -115,7 +117,21 @@ The above function looks alright, but a little problematic. Its true that we are
 ![Comment Structure Illustration](/static/images/nested-comments/comment-structure.png)
 
 ```ts
+interface Comment {
+  text: string
+  children: Comment[] | null
+}
 
+function initLogComment(comments: Comment[]) {
+  // base case
+  if (!comment) return
+
+  // recursive case with DFS
+  for (let i = 0; i < comment.children.length; i++) {
+    console.log(comment.text)
+    logComment(comment.children[i])
+  }
+}
 ```
 
 ### DIAGRAM
