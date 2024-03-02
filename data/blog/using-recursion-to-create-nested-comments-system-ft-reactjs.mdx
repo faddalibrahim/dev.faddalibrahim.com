@@ -8,23 +8,21 @@ summary: 'build a recursive comment section with reactjs'
 
 # Introduction
 
-Recursive thinking is one of the crazy rides in every DSA journey. Beyond just _*figuring out the base and recursive cases*_, the mechanics easily gets out of control, making it challenging to trace the flow properly. Whereas loops may, in some cases, be more applicable, recursion beats the game with elegance!
+Recursive thinking is one of the crazy rides in every DSA journey. Beyond just **figuring out the base and recursive cases**, the mechanics easily gets out of control, making it challenging to trace the flow properly. Whereas loops may, in some cases, be more applicable, recursion beats the game with elegance! (although, with memory trade-offs)
 
 Moreover, there are problems that are just too difficult or even impossible to solve without recursion. Example of such is the focus of this post. Note that this post is not to teach you about recursion.
 
 Hence, to feel comfortable following through to the end, you must fit the following profile.
 
-1. you know the basics of recursion and have solved a few simple questions around it
+1. You know the basics of recursion and have solved a few simple questions around it
 
-2. you have some knowledge of trees and how to perform a depth-first search/traversal
+2. You have some knowledge of trees and how to perform a depth-first search/traversal
 
-3. you have dabbled a little bit with Space & Time Complexity
+3. You know basic ReactJs and Typescript (states, props, map, filter)
 
-4. (Optional) you know basic ReactJs (states, props, map, filter)
+Here is a [live link](https://nested-comments-react.netlify.app) to the final version of the nested comments system built with react.
 
-Here is a live link to the final version of the comments system.
-
-Also, note that this post doesn't highlight anything about styling, layout and other aesthetics you might see in the final version (it will make the post too long). The full code is hosted on this github link for your perusal. You can fork or clone for your usage.
+Also, note that this post doesn't highlight anything about styling, layout and other aesthetics you might see in the final version. The full code is hosted on this [github link](https://github.com/faddalibrahim/nested-comments-system-react) for your perusal.
 
 So what is expected in this post?
 
@@ -50,21 +48,7 @@ function printNumberLadder(num: number) {
 }
 ```
 
-Tabular output of the recursive flow
-
-|             |             |             |
-| ----------- | ----------- | ----------- | ----------- | ----------- | -------------- |
-| pNL(5) -> 5 |             |             |             |             |                |
-|             |             |             |             |             |                |
-|             | pNL(4) -> 4 |             |             |             |                |
-|             |             |             |             |             |                |
-|             |             | pNL(3) -> 3 |             |             |                |
-|             |             |             |             |             |                |
-|             |             |             | pNL(2) -> 2 |             |                |
-|             |             |             |             |             |                |
-|             |             |             |             | pNL(1) -> 1 |                |
-|             |             |             |             |             |                |
-|             |             |             |             |             | pNL(0) -> null |
+![Recursive Function](/static/images/nested-comments/basic-recursive-func.svg)
 
 The recursive flow of this function mimics the behavior of our comments system. We render a parent comment, then proceed to render all the sub comments in it.
 
