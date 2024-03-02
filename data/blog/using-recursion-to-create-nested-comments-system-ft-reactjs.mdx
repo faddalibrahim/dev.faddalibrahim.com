@@ -8,43 +8,39 @@ summary: 'build a recursive comment section with reactjs'
 
 # Introduction
 
-_Just figure out your base and recusive case and you are good to go_. Really? Well, until you start dealing with more moving parts and the whole mechanics goes out of yor control. Recusion -- one of the crazy rides in your DSA journey thats both fun and irritating.
+Recursive thinking is one of the crazy rides in every DSA journey. Beyond just _figuring out the base and recursive cases_, the mechanics easily gets out of control, making it challenging to trace/imagine the flow properly. Whereas loops may in some cases be more applicable, recursion beats the game with elegance!
 
-However, this post is not a recursion slander, neither is it to teach you recursion, but rather using it to create a nested comment system similar to those you see on social media platforms.
+Moreover, there are problems that are just too difficult or even impossible to solve without recursion. Example of such is the focus of this post. Note that this post is not to teach you about recursion. Hence, to feel comfortable following through to the end, you must fit the following profile.
 
-Hence, to feel comfortable following through to the end of this post, you must fit this profile.
+1. you know the basics of recursion and have solved a few simple questions around it
 
-1. you know the basics of recursion and have solved a few basic questions around it
-
-2. you have knowledge of depth-first search/traversal
+2. you have some knowledge of trees and how to perform a depth-first search/traversal
 
 3. you have dabbled a little bit with Space & Time Complexity
 
-4. (Optional) you know some ReactJs (states, props) and Javascript/Typescript (filter, map)
+4. (Optional) you know basic ReactJs (states, props, map, filter)
 
-Good! Looks like you fit the profile. You are welcome to look at the roadmap. Strap your belts!
+Here is a live link to the final version of the comments system.
 
-<TOCInline toc={props.toc} exclude="Introduction" />
+Also, note that this post doesn't highlight anything about styling, layout and other aesthetics you might see in the final version (it will make the post too long). The full code is hosted on this github link for your perusal. You can fork or clone for your usage.
 
-**Part A** is where we do a classic textbook analysis of for how our nested comments would operate
-**Part B** is where we actually build the system!
+So what is expected in this post?
 
-1. Theory
-   In this section, we use an example recursive function as a template for how our nested comments would operate.
+1. Build out the logic for the behavior of the comments system using textbook/classroom knowledge
+2. Build a setup and the basic ReactJS components needed to get it functional.
 
-2. Application
-   Here, we built the actual comment section using ReactJS.
+Find below the roadmap
 
-## Part A
+## Foundational Logic
 
-### A basic recursive function
+### A simple recursive function
 
-This function is going to be a foundational reference point for how to build our component. It takes a positive integer, then it prints the integer and all other positive integers below it.
+This function is going to be a foundational reference point and a low-level template for how our nested comments system will behave. It takes a positive integer, then it prints the integer and all other positive integers less than the input integer. Let's call it `printNumberLadder`
 
 ```ts
-function printNumberLadder(num: number): null {
+function printNumberLadder(num: number) {
   // base case
-  if (num === 0) return
+  if (num <= 0) return
 
   // recursive case
   console.log(num)
@@ -52,63 +48,81 @@ function printNumberLadder(num: number): null {
 }
 ```
 
-|             |           |             |
-| ----------- | --------- | ----------- | ----------- | ----------- | -------------- |
-| pNL(5) -> 5 |           |             |             |             |                |
-|             |           |             |             |             |                |
-|             | pNL(4) -> | 4           |             |             |                |
-|             |           |             |             |             |                |
-|             |           | pNL(3) -> 3 |             |             |                |
-|             |           |             |             |             |                |
-|             |           |             | pNL(2) -> 2 |             |                |
-|             |           |             |             |             |                |
-|             |           |             |             | pNL(1) -> 1 |                |
-|             |           |             |             |             |                |
-|             |           |             |             |             | pNL(0) -> null |
+Tabular output of the recursive flow
 
-This function mimics the exact behavior of our comment section. We render a parent comment, then proceed to render all the sub comments in it. Assuming out comment
+|             |             |             |
+| ----------- | ----------- | ----------- | ----------- | ----------- | -------------- |
+| pNL(5) -> 5 |             |             |             |             |                |
+|             |             |             |             |             |                |
+|             | pNL(4) -> 4 |             |             |             |                |
+|             |             |             |             |             |                |
+|             |             | pNL(3) -> 3 |             |             |                |
+|             |             |             |             |             |                |
+|             |             |             | pNL(2) -> 2 |             |                |
+|             |             |             |             |             |                |
+|             |             |             |             | pNL(1) -> 1 |                |
+|             |             |             |             |             |                |
+|             |             |             |             |             | pNL(0) -> null |
 
-The base case `if num === 0` is similar to `if there are no more sub comments` and
-the recursive case `pNL(num - 1)` is similar to `call the next  direct child`
+The recursive flow of this function mimics the behavior of our comments system. We render a parent comment, then proceed to render all the sub comments in it.
 
-Therefore, we have
+The base case, `if num <= 0` is similar to `if there are no more sub comments`
+the recursive case `pNL(num - 1)` is similar to `call the next child comment that is below the current comment`
+
+Translating this to reflect our comments system, we have
 
 ```ts
 function logComment(comment) {
-  // base case : if theare no more comments or child comments (replies), return
+  // base case : stop if there are no more comments or child comments
   if (!comment || !comment.child) return
 
-  // recusrive : display the current comment and call its direct child
+  // recursive : display the current comment and call its direct child comment
   console.log(comment.text)
   logComment(comment.child)
 }
 ```
 
-However, the underlying assumption doesnt work. It makes sense if there is just one parent comment that has a single child comment, which in turn has a single child comment and so on, as illustrated in the diagram below
+However, the above setup doesn't work. It makes sense if there is just one parent comment that has a single child comment, which in turn has a single child comment and so on, as illustrated in the diagram below
 
-But NO! In reality, there are multiple top level comments. Each top level comment has a number of children. Each child has its own children and so on. Therefore we have a TREE! Wow That escalated so quickly!
+But NO! In reality, there are multiple top level comments. Each top level comment has a number of children. Each child has its own children and so on. Therefore we have a TREE! And how do we traverse trees? You right! DFS/BFS. Wow That escalated so quickly!
+
+### Depth-First Traversal
+
+Now that we are aware we are dealing with a tree, the puzzle pieces should have connected themselves enough for you to conclude that to perform any operation on the comments system (printing, deleting, adding, editting) , we need to traverse the comment tree recursively with DFS. So, let's modify the `logComment` function to do just that
+
+A comment is made up of `comment text` and its `children`
+
+```ts
+interface Comment {
+  text: string
+  children: Comment[] | null
+}
+
+function logComment(comment: Comment) {
+  // base case
+  if (!comment) return
+
+  // recursive case with DFS
+  for (let i = 0; i < comment.children.length; i++) {
+    console.log(comment.text)
+    logComment(comment.children[i])
+  }
+}
+```
+
+The above function looks alright, but a little problematic. Its true that we are dealing with a TREE, and trees have ROOTS. So to start our DFS, we pass the root as the primary argument to start the recursive chain. But, remember, in a comment system, there are multiple Top-Level Comments. Its not as though there is a single root comment, and all other comments fall below it. Therefore, the ROOT that will be passed as the argument to the inital call of the function will be an ARRAY of all the TOP-LEVEL COMMENTS
+
+![Comment Structure Illustration](/static/images/nested-comments/comment-structure.png)
+
+```ts
+
+```
 
 ### DIAGRAM
 
 Lets modify the previous function to reflect reality,
 
 It basically becomes a depth-first traversal through the comment object to print the comment tree
-
-```ts
-interface Comment {
-  text: string
-  children: Comment[]
-}
-
-function logComment(comment: Comment) {
-  if (!comment) return
-
-  for (let i = 0; i < comment.children.length; i++) {
-    console.log(comment.text)
-    logComment(comment.child)
-  }
-}
-```
 
 ### Comment Tree
 
@@ -118,7 +132,7 @@ Now that we are aware that we are dealing with a tree, we pick the right tool fr
 
 ### Space & Time Complexity
 
-## Application
+## Building the comments system
 
 ### Structure of a Comment data
 
@@ -226,6 +240,17 @@ function addComment(commentText: string, parentId: string) {
 
 ### Editting a comment
 
+## Problems
+
+call stack problems
+
 ### Conclusion
 
-<BlogNewsletterForm title="Like what you are reading?" />
+The final version can be found here. Its a bit more complex that the simple demonstration here. I had to use context to prevent prop drilling.
+
+Interesting Things you can add
+
+- connect to a backend (firebase)
+- limit the number of replies that show (show more button)
+
+# React Diagram
