@@ -46,15 +46,17 @@ function printNumberLadder(num: number) {
   console.log(num)
   printNumberLadder(num - 1)
 }
+
+printNumberLadder(3);
 ```
 
 **Result**
 
 ![Recursive Function](/static/images/nested-comments/basic-recursive-func.svg)
 
-The recursive flow of this function mimics the behavior of our comments system -- We render a parent comment, then proceed to render all the sub comments in it.
+The recursive flow of this function mimics the behavior of our comments system -- We render a parent comment, then proceed to render all the sub comments in it by recursively calling its sub-comments.
 
-Comparing that with the comment system,
+Comparing that with a potential comment system,
 
 The **Base Case**, `if num <= 0` is linguistically similar to `if there are no more sub comments...`
 
@@ -63,27 +65,40 @@ The **Recursive Case** `pNL(num - 1)` is similar to `call the next comment below
 Translating the previous code to reflect a comments system, we have..
 
 ```ts:logComment.ts
-function logComment(comment) {
-  // base case : stop if there are no more comments or child comments
-  if (!comment || !comment.child) return
+interface Comment{
+  text: string
+  child: Comment | null
+}
 
-  // recursive : display the current comment and call its direct child comment
+function logComment(comment: Comment) {
+  /**
+   * BASE CASE
+   * stop if there are no more child comments
+  */
+  if (comment === null) return
+
+
   console.log(comment.text)
+
+  /**
+   * RECURSIVE CASE
+   * call the next child comment
+  */
   logComment(comment.child)
 }
 ```
 
 However, the above setup doesn't work. It makes sense if there is just one parent comment that has a single child comment, which in turn has a single child comment and so on.
 
-But NO! In reality, there are multiple top level comments. Each top level comment has a number of children. Each child has its own children and so on. Therefore we have a TREE! And how do we traverse trees? You right! **DFS/BFS**.
+But NO! In reality, there are multiple comments. Each comment has a number of children (replies). Each child has its own children and so on. Therefore we have a **TREE**! And how do we traverse trees? You are right! **DFS or BFS**.
 
 ![Comment Tree Illustration](/static/images/nested-comments/comment-tree.svg)
 
 ### Depth-First-Search/Traversal
 
-Now that we are aware we are dealing with a tree, we know we need to traverse recursively with **DFS** to perform any operations on the comment tree (deleting, printing etc). So, let's modify the `logComment` function to do just that
+Now that we are aware that we are dealing with a tree, we know we need to traverse recursively in a **depth-first** fashion to perform any operations on the comment tree (deleting, printing etc). So, let's modify the `logComment` function to do just that
 
-Before that, here is are some key preparations to note.
+Before that, here are some key reminders to note.
 
 1. The main components of a comment - a `text` and `children/sub comments`. The sub comments/children are what we linguistically call a reply. But lets call them children for the sake of technicality.
 
@@ -94,9 +109,9 @@ interface Comment {
 }
 ```
 
-2. On comments sections on social media, there isnt a starting root comment from which all others branch out. Its rather a list of independent `Top-Level` comments written by different users. Its from these `Top-Level` comments that other users may choose to reply to.
+2. For comments sections on social media, there isnt a starting root comment from which all others branch out. Its rather a list of independent `Top-Level` comments written by different users. Its from these `Top-Level` comments that other users may choose to reply to.
 
-So, there is literally no ROOT. But we can create an imaginary ROOT comment. This imaginary root will have no `text`, but its children will be the `Top-Level` Comments. This makes it easy to pass a ROOT to initiate the recursive chain.
+So, there is literally no ROOT. But we can create an imaginary/fake ROOT comment. This imaginary/fake root will have no `text`, but its children will be these `Top-Level` Comments. It makes it easy to pass a ROOT to initiate the recursive chain.
 
 ![Comment Tree Illustration](/static/images/nested-comments/imaginary-root.svg)
 
@@ -115,7 +130,11 @@ function logCommentDFS(comment: Comment) {
 
 ### Space & Time Complexity
 
-## PART 2: Building the comments system
+## PART 2: Building the APP
+
+Below is a visual representation of the app. Starting from innermost component, I will explain what happens at each level.
+
+![React App Hierarchy](/static/images/nested-comments/react-app-hierarchy.svg)
 
 ### Structure of a Comment data
 
@@ -138,15 +157,15 @@ interface Comment {
 }
 ```
 
-### Comment Block Component
+### CommentBlock.tsx Component : Renders a single comment
 
-This is the visual representation of a single comment. It is what users would see and interact with. It takes a comment data as an input prop and renders it on the screen.
+The **CommentBlock.tsx** component is the visual representation of a single comment. It is what users would see and interact with. It takes a comment data as an input prop and renders it on the screen.
 
-Additionally, this block component will recursively render any replies/sub-comments for the main comment.
+Additionally, this component will recursively render any replies/sub-comments for the current comment.
 
 ```tsx:CommentBlock.tsx
 
-export default function CommentBlock(comment: Comment){
+export default function CommentBlock({comment}){
   return (
     <div>
       <p>{comment.text}</p>
@@ -155,9 +174,9 @@ export default function CommentBlock(comment: Comment){
         <button>delete</button>
       </div>
 
-      {/**Recursive rendering of replies*/}
+      {/**Recursive rendering of comment replies*/}
       {
-        comment.replies.length != 0 && comment.replies.map(
+        comment.replies.length > 0 && comment.replies.map(
           (reply: Comment) => <CommentBlock comment={reply}/>
         )
       }
@@ -167,31 +186,51 @@ export default function CommentBlock(comment: Comment){
 
 ```
 
-### Rendering Comments To The Screen
+### Rendering All Comments To The Screen
 
-The CommentThread.tsx component takes a an array of comments.
+We will call this component `CommentThread.tsx`.
 
-This is the initial call that starts the recursive chain!
+It will take an array of all the comments, loop through and render them to the screen by passing each comment's data to `CommentBlock.tsx`
 
-It loops through the TopLevel Comments and recursively calls their children.
+By looping through and passing each comment's data to `CommentBlock.tsx`, it starts the recursive chain that results in the rendering of sub comments for each parent comment and so on.
 
 ```tsx:CommentThread.tsx
-export default function CommentBlocks(topLevelComments){
-  return(
-    {topLevelComments.length > 0 ? (
-      topLevelComments.map(comment => <CommentBlock comment={comment}/>)
-      ) : (<p>no comments</p>)
-
-    }
-  )
+export default function CommentThread({allComments}) {
+    return allComments.map((comment: Comment) => <CommentBlock key={comment.id} comment={comment}/>)
+  }
 }
 ```
 
-### Adding a Top-Level Comment
+### Adding a comment to the tree
 
-A top-level comment is a comment that is not a reply.
+In the previous paragraphs, we have been passing comments through to our components. But where are those comment data coming from? Since we are dealing with, ReacJS, we need to store these comments in a state.
+
+```tsx:CommentSection.tsx
+export default function CommentSection(){
+
+  const [allComments] = useState<Comment[]>(dummyCommentData);
+
+  return <CommentThread allComments={allComments}/>
+}
+```
+
+```tsx:CommentSection.tsx
+export default function CommentSection(){
+
+  const [allComments, setAllComments] = useState<Comment[]>(dummyCommentData);
+
+  return <CommentThread
+            allComments={allComments}
+            setAllComments={setAllComments}
+          />
+}
+```
 
 ```ts
+
+import useState from "react"
+
+
 function addTopLevelComment(commentText){
   setAllComments((prevComments) => [new Comment(commentText), ..prevComments.])
 }
