@@ -20,16 +20,18 @@ Hence, to feel comfortable following through to the end, you must fit the follow
 
 3. You know basic ReactJs and Typescript (states, props, map, filter)
 
-Here is a [live link](https://nested-comments-react.netlify.app) to the final version of the nested comments system.
+Here is a [live link](https://react-nested-comments-system.netlify.app) to the final version of the app. This post doesn't highlight anything about styling, layout and other aesthetics you might see in the final version. The full code is hosted on this [github link](https://github.com/faddalibrahim/nested-comments-system-react) for your perusal.
 
-Also, note that this post doesn't highlight anything about styling, layout and other aesthetics you might see in the final version. The full code is hosted on this [github link](https://github.com/faddalibrahim/nested-comments-system-react) for your perusal.
+With that being said, we are good to go. Find below the roadmap!
 
-So what is expected in this post?
+## Goals?
 
-1. Build out the logic for the behavior of the comments system using textbook/classroom knowledge
-2. Build a setup and the basic ReactJS components needed to get it functional.
+My goal for this post in not to spoon feed you with code that you can plug into your app (chatGPT can help you with that), but to breakdown the mechanics of the behavior of a nested comments system and make you understand what is happening on a deeper level. Ultimately, you should be able to recreate the logic and customize it to feed your needs. Also, its a future time-saver for me because I have a really terrible memory and these technical articles I write come in handy whenever I need them.
 
-Find below the roadmap
+We will do this in two steps.
+
+1. Build out the foundational logic for the behavior of the comments system using textbook/classroom knowledge
+2. Build the setup and the basic ReactJS components needed to get the app functional.
 
 ## PART 1 : Foundational Logic
 
@@ -54,15 +56,13 @@ printNumberLadder(3);
 
 ![Recursive Function](/static/images/nested-comments/basic-recursive-func.svg)
 
-The recursive flow of this function mimics the behavior of our comments system -- We render a parent comment, then proceed to render all the sub comments in it by recursively calling its sub-comments.
-
-Comparing that with a potential comment system,
+The recursive flow of this function mimics the behavior of a nested comments system -- We render a parent comment, then proceed to render all the sub comments in it by recursively, till there are no more sub-comments.
 
 The **Base Case**, `if num <= 0` is linguistically similar to `if there are no more sub comments...`
 
 The **Recursive Case** `pNL(num - 1)` is similar to `call the next comment below this one`
 
-Translating the previous code to reflect a comments system, we have..
+Translating the previous code to reflect the comments system, we have..
 
 ```ts:logComment.ts
 interface Comment{
@@ -73,16 +73,16 @@ interface Comment{
 function logComment(comment: Comment) {
   /**
    * BASE CASE
-   * stop if there are no more child comments
+   * stop if there are no more comments
   */
   if (comment === null) return
 
-
+  // print the current comment text
   console.log(comment.text)
 
   /**
    * RECURSIVE CASE
-   * call the next child comment
+   * call the next child comment below this one
   */
   logComment(comment.child)
 }
@@ -90,55 +90,118 @@ function logComment(comment: Comment) {
 
 However, the above setup doesn't work. It makes sense if there is just one parent comment that has a single child comment, which in turn has a single child comment and so on.
 
-But NO! In reality, there are multiple comments. Each comment has a number of children (replies). Each child has its own children and so on. Therefore we have a **TREE**! And how do we traverse trees? You are right! **DFS or BFS**.
+But NO! In reality, there are multiple comments. Each comment has a number of children (replies). Each child (reply) has its own children and so on. Therefore we have a **TREE**! And how do we traverse trees recursively? You are right! **Depth-First Traversal**.
 
 ![Comment Tree Illustration](/static/images/nested-comments/comment-tree.svg)
 
 ### Depth-First-Search/Traversal
 
-Now that we are aware that we are dealing with a tree, we know we need to traverse recursively in a **depth-first** fashion to perform any operations on the comment tree (deleting, printing etc). So, let's modify the `logComment` function to do just that
+Now that we are aware that we are dealing with a tree, we know we need to traverse recursively in a **depth-first** fashion to perform any mofifications on the **Comment Tree**. So, let's modify the `logComment` function to do just that
 
 Before that, here are some key reminders to note.
 
-1. The main components of a comment - a `text` and `children/sub comments`. The sub comments/children are what we linguistically call a reply. But lets call them children for the sake of technicality.
+1. The main components of a comment we will focus on are `text` and `children/sub comments`. The sub comments/children are what we linguistically call a reply. But lets call them children for the sake of technicality.
 
 ```ts
 interface Comment {
-  text: string
+  text: string | null
   children: Comment[] | null
 }
 ```
 
 2. For comments sections on social media, there isnt a starting root comment from which all others branch out. Its rather a list of independent `Top-Level` comments written by different users. Its from these `Top-Level` comments that other users may choose to reply to.
 
-So, there is literally no ROOT. But we can create an imaginary/fake ROOT comment. This imaginary/fake root will have no `text`, but its children will be these `Top-Level` Comments. It makes it easy to pass a ROOT to initiate the recursive chain.
+So, there is literally no ROOT. But we can create an imaginary/fake ROOT comment. This imaginary/fake root will have no `text`, but its children will be these `Top-Level` Comments. This makes it possible to pass a ROOT to initiate the recursive chain.
 
 ![Comment Tree Illustration](/static/images/nested-comments/imaginary-root.svg)
 
-```ts:logCommentDFS.ts
-function logCommentDFS(comment: Comment) {
+**Displaying Comments**
+
+```ts:logCommentWithDFS.ts
+function logCommentWithDFS(comment: Comment) {
   // base case
   if (!comment) return
 
+  console.log(comment.text)
+
   // recursive case with DFS
   for (let i = 0; i < comment.children.length; i++) {
-    console.log(comment.text)
-    logComment(comment.children[i])
+    logCommentWithDFS(comment.children[i])
   }
 }
 ```
 
-### Space & Time Complexity
+**Adding Comments To Comment Tree**
+
+To add a comment to the comment tree, we need to know exactly where to attach it. A comment can either be a top-level comment or a sub-comment (reply).
+
+For sub-comments, we need to know the **id** of the parent comment they belong to.  
+Top level comments dont have any parents, so we can add them directly to the children of the **imaginary/fake** root.
+
+```ts:addCommentWithDFS.ts
+const fakeRoot = {
+  text: null,
+  children: []
+}
+
+
+/**
+ * Adds a comment to the appropriate position in the comment tree
+ *
+ * @param {commentRoot} - the root of the comment tree
+ * @param {parentId} - the id of the parent to which the comment belongs
+ * @paream {commentText} - the comment's text content
+ *
+*/
+function addCommentWithDFS(
+  commentRoot: Comment | null,
+  parentId: string | null,
+  commentText: string) {
+
+  // base case
+  if (!commentRoot) return
+
+  // top-level comment
+  if(parentId === null){
+    commentRoot.replies.push({
+      text: commentText,
+      children: []
+    })
+    return
+  }
+
+  // recursive case with DFS to attach sub-comments (replies)
+  for (let i = 0; i < commentRoot.children.length; i++) {
+    const currentComment = commentRoot.children[i];
+    if(currComment.id === parentId){
+      currComment.children.push({
+        text: commentText,
+        children: []
+      })
+    }
+    else{
+      addCommentWithDFS(comment, comment.id, commentText)
+    }
+  }
+}
+
+```
+
+That is it! All we need to do now is implement this same logic using a frontend framework of our choice. Man, I love ReactJS. Let's use that
 
 ## PART 2: Building the APP
 
-Below is a visual representation of the app. Starting from innermost component, I will explain what happens at each level.
+Below is a visual representation of the app. Starting from innermost component (CommentBlock.tsx), I will explain what happens at each level.
+
+In order not to clutter each section, we will focus on the code needed only for that section. Then we can put all together in the end. But keep in mind that the sections are connected and what happens in a previous section is connected to the next and may even use code from previous sections.
+
+Secondly, any onChange or onClick actions will not be demonstrated. We are assuming that those actions have been triggerd and all we need is to call the function being called in response to those actions.
 
 ![React App Hierarchy](/static/images/nested-comments/react-app-hierarchy.svg)
 
-### Structure of a Comment data
+### Extending the comment interface
 
-Here, we extend the previous to interface to include relevant data like **id**, **user**, **dates** etc.
+Let's extend the previous **Comment** interface to include **id** and **user**.
 
 ```ts
 interface User {
@@ -153,11 +216,10 @@ interface Comment {
   user: User
   replies: Comment[]
   createdAt: Date
-  modifiedAt: Date
 }
 ```
 
-### CommentBlock.tsx Component : Renders a single comment
+### Rendering a single comment using CommentBlock.tsx
 
 The **CommentBlock.tsx** component is the visual representation of a single comment. It is what users would see and interact with. It takes a comment data as an input prop and renders it on the screen.
 
@@ -186,33 +248,24 @@ export default function CommentBlock({comment}){
 
 ```
 
-### Rendering All Comments To The Screen
+### Rendering all Comments to the screen using CommentThread.tsx
 
-We will call this component `CommentThread.tsx`.
+This component will take an array of all the comments, loop through and render them to the screen by passing each comment's data to **CommentBlock.tsx**
 
-It will take an array of all the comments, loop through and render them to the screen by passing each comment's data to `CommentBlock.tsx`
-
-By looping through and passing each comment's data to `CommentBlock.tsx`, it starts the recursive chain that results in the rendering of sub comments for each parent comment and so on.
+By looping through and passing each comment's data to `CommentBlock.tsx`, it starts the recursive chain that results in the rendering of sub comments for each parent comment.
 
 ```tsx:CommentThread.tsx
 export default function CommentThread({allComments}) {
-    return allComments.map((comment: Comment) => <CommentBlock key={comment.id} comment={comment}/>)
+    return allComments.map(
+      (comment: Comment) => {
+          return <CommentBlock key={comment.id} comment={comment}/>
+      }
+    )
   }
 }
 ```
 
-### Adding a comment to the tree
-
-In the previous paragraphs, we have been passing comments through to our components. But where are those comment data coming from? Since we are dealing with, ReacJS, we need to store these comments in a state.
-
-```tsx:CommentSection.tsx
-export default function CommentSection(){
-
-  const [allComments] = useState<Comment[]>(dummyCommentData);
-
-  return <CommentThread allComments={allComments}/>
-}
-```
+Finally, **CommentSection.tsx** encloses everything. It is also where comment state is defined and pass down as props to the sub components.
 
 ```tsx:CommentSection.tsx
 export default function CommentSection(){
@@ -226,59 +279,143 @@ export default function CommentSection(){
 }
 ```
 
+### Adding a comment to the tree
+
+Since we are using ReactJS, lets think react-wise. To perform any modifications to the commen tree, you guessed it -- we will use **setAllComments** set state action.
+
+Its important to note that adding a comment to the tree will be in 2 ways. Either as a **top-level comment** or as a sub-comment/reply to another comment. Hence, the way in which we use **setAllComments** to modify the state will be different.
+
+1. Adding a comment as top-level
+
 ```ts
 
-import useState from "react"
+function newComment(commentText: string, currentUser: User){
+  return {
+    id: String(Math.random()),
+    text: commentText,
+    user: currentUser
+    replies: []
+    createdAt: new Date()
+  }
+}
 
 
-function addTopLevelComment(commentText){
-  setAllComments((prevComments) => [new Comment(commentText), ..prevComments.])
+function addTopLevelComment(commentText, currentUser){
+  setAllComments((prevComments) => {
+    return [newComment(commentText, currentUser), ...prevComments.]
+  }
+  )
 }
 
 ```
 
-### Adding a Child Comment (Reply)
+2. Adding a comment as a child/reply
 
-Here is where we need to think critically
+For this, we need to know exactly where to insert the comment. What do we need to know? The **id** of the parent comment under which we are inserting into.
 
-we need to know
-
-1. the parent comment to which we are attaching the reply to
+Secondly, we need to perform a depth first traversal to find it since it is most likely deep down the comment tree.
 
 ```ts
-function addChildComment(commentText, parentId) {}
-```
+/**
+ * adds a reply to a parent comment
+ *
+ * @param {commentText} - the text of the new comment reply
+ * @param {parentId} - the id of the parent comment to which the reply is added to
+*/
+function addReply(commentText: string, parentId:string){
+  const commensWithReplies = [...allComments]
+  addNestedCommentDFS(commentsWithReplies, commentText, parentId)
+  setAllComments(commentsWithReplies)
+}
 
-### Combining addChildComment and addTopLevelComment
+/**
+ * performs DFS on a comment subtree to update its children
+ *
+ * @param {commentWithReplies} - the comment subtree
+ * @param commentText - the text of the new comment to be added as a child
+ * @param {parentId} - the parent comment to search for
+*/
 
-```ts
-function addComment(commentText: string, parentId: string) {
-  // top level comment
-  if (!parentId) {
-    addTopLevelComment(commentText)
-    return
+function addNestedCommentDFS(
+  commentsWithReplies:Comment[],
+  commentText: string,
+  parentId:string
+  ) {
+
+  for (let i = 0; i < commentsWithReplies.length; i++){
+    const comment = commentsWithReplies[i]
+
+    if(comment.id === parentId){
+      comment.replies [
+        newComment(commentText, currentUser),
+        ...comment.replies
+      ]
+    }else{
+      addNestedComment(comment.replies, commentText, parentId)
+    }
   }
 
-  // child comment (reply)
-  addChildComment(commentText, parentId)
+
 }
 ```
 
 ### Deleting a comment
 
-### Editting a comment
+Applying the same idea as adding a comment
+
+1. Deleting a top level comment
+
+```ts
+/**
+ * Deletes a comment at the top level
+ *
+ * @param {commentId} - the id of the comment to be deleted
+ */
+function deleteTopLevelComment(commentId: string) {
+  setAllComments((prevComments: Comment[]) =>
+    prevComments.filter((comment: Comment) => comment.id != commentId)
+  )
+}
+```
+
+2. Deleting a nested comment/reply
+
+```ts
+function deleteReply() {
+  const commentsWithReplies = [...allComments]
+  deleteNestedCommentDFS(commentsWithReplies, commentId, parentId)
+  setAllComments(commentsWithReplies)
+}
+
+function deleteNestedCommentDFS(
+  commentsWithReplies: Comment[],
+  commentId: string,
+  parentId: string
+) {
+  for (let i = 0; i < commentsWithReplies.length; i++) {
+    const comment = commentsWithReplies[i]
+    if (comment.id === parentId) {
+      comment.replies = comment.replies.filter((comment) => comment.id !== commentId)
+    } else {
+      deleteNestedComment(comment.replies, commentId, parentId)
+    }
+  }
+}
+```
 
 ## Problems
 
-call stack problems
+Stack Overflow
 
-### Conclusion
+## Conclusion
 
-The final version can be found here. Its a bit more complex that the simple demonstration here. I had to use context to prevent prop drilling.
+I believe the code samples and illustrations did well in explaining the logic behind the comments system. Armed with this knowledge, I beleive you can piece it together to customize yours further, although you are welcome to take a cue from mine. Its more important that you understand and be able to redo from scratch!
 
-Interesting Things you can add
+In the final version of my code on github. Its a bit more complex that the simple demonstration here. I had to use react context to prevent prop drilling.
 
-- connect to a backend (firebase)
-- limit the number of replies that show (show more button)
+In trying to modularize the code a bit furhter, I ended up with prop drilling and passing
 
-# React Diagram
+Interesting things you can add
+
+1. connect to a nosql database (firebase/supabase)
+2. web sockets to realtime comment updates from different users
