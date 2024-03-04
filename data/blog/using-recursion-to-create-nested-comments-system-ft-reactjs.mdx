@@ -8,9 +8,11 @@ summary: 'build a recursive comment section with reactjs'
 
 # Introduction
 
-Recursive thinking is one of the crazy rides in the DSA journey. Beyond just **figuring out the base and recursive cases**, the mechanics easily gets out of control, making it challenging to trace the flow properly. Whereas loops may, in some cases, be more applicable, recursion beats the game with elegance! (although, with memory trade-offs)
+Recursive thinking is one of the crazy rides in the DSA journey. Beyond just **figuring out the base and recursive cases**, the mechanics easily gets out of control, making it challenging to trace the flow properly. Whereas loops may, in some cases, be more applicable, recursion beats the game with elegance (although, with memory and speed trade-offs)
 
-Moreover, there are problems that are just too difficult or even impossible to solve without recursion. Example of such is the focus of this post. Note that this post is not to teach you about recursion.
+Moreover, there are problems that are just too difficult or even impossible to solve without recursion. Think of a social media comment section like reddit or twitter, where you can reply to a comment, and then someone else can reply to your reply, and so on. This is a classic example of a **nested comments system**. The depth of the nesting is not known beforehand and can be deeper on many lower levels. This is a perfect use case for recursion.
+
+Note that this post is not to teach you about recursion.
 
 Hence, to feel comfortable following through to the end, you must fit the following profile.
 
@@ -22,17 +24,17 @@ Hence, to feel comfortable following through to the end, you must fit the follow
 
 Here is a [live link](https://react-nested-comments-system.netlify.app) to the final version of the app. This post doesn't highlight anything about styling, layout and other aesthetics you might see in the final version. The full code is hosted on this [github repo](https://github.com/faddalibrahim/nested-comments-system-react) for your perusal.
 
-With that being said, we are good to go. Find below the roadmap!
+Find below the roadmap!
 
 <TOCInline toc={props.toc} exclude="Introduction" />
 
 ## Goals?
 
-My goal for this post in not to spoon feed you with code that you can plug into your app (chatGPT can help you with that or the [github repo](https://github.com/faddalibrahim/nested-comments-system-react)), but to breakdown the mechanics of the behavior of a nested comments system and make you understand what is happening on a deeper level. Ultimately, you should be able to recreate the logic and customize it to fit your needs. Also, its a future time-saver for me because I have a really terrible memory and these technical articles I write come in handy whenever I need a refresher.
+My goal for this post in not to spoon-feed you with code that you can plug into your app (chatGPT can help you with that or the [github repo](https://github.com/faddalibrahim/nested-comments-system-react)), but to breakdown the mechanics of the behavior of a nested comments system and make you understand what is happening on a deeper level. Ultimately, you should be able to recreate the logic and customize it to fit your needs. Also, its a future time-saver for me because I have a really terrible memory and these technical articles I write come in handy whenever I need a refresher.
 
 We will do this in 2 steps.
 
-1. Build out the foundational logic for the behavior of the comments system using textbook/classroom knowledge
+1. Build out the foundational logic for the behavior of the nested comments system using textbook/classroom knowledge
 2. Build the setup and the basic ReactJS components needed to get the app functional (No styling, event-handling etc)
 
 ## PART 1 : Foundational Logic
@@ -106,11 +108,11 @@ But NO! In reality, there are multiple comments. Each comment has a number of ch
 
 ### Depth-First-Search/Traversal
 
-Now that we are aware that we are dealing with a tree, we know we need to traverse recursively in a **depth-first** fashion to perform any mofifications on the **Comment Tree**. So, let's modify the `logComment` function to do just that
+Now that we are aware that we are dealing with a tree, we know we need to traverse recursively in a **depth-first** fashion to perform any modifications on the **Comment Tree**. So, let's modify the `logComment` function to do just that
 
 Before that, here are some key reminders to note.
 
-1. The main components of a comment we will focus on are `text` and `children/sub comments`. The sub comments/children are what we linguistically call a **replies**. But lets call them **children** for the sake of technicality.
+1. The main components of a comment we will focus on are `text` and `children/sub comments`. The **sub comments/children** are what we linguistically call **replies**. But lets call them **children** for the sake of technicality.
 
 ```ts
 interface Comment {
@@ -345,9 +347,17 @@ Its important to remember that adding a comment to the tree will be in 2 ways. E
 
 ```ts
 
+
+/**
+ * Creates a new comment object
+ *
+ * @param {commentText} - the text of the new comment
+ * @param {currentUser} - the user adding the comment
+*/
+
 function newComment(commentText: string, currentUser: User){
   return {
-    id: String(Math.random()),
+    id: String(Math.random()), // NB: not the best way to generate ids; use uuid instead or a backend
     text: commentText,
     user: currentUser
     replies: []
@@ -355,6 +365,12 @@ function newComment(commentText: string, currentUser: User){
   }
 }
 
+/**
+ * Adds a comment at the top level
+ *
+ * @param {commentText} - the text of the new comment
+ * @param {currentUser} - the user adding the comment
+ */
 
 function addTopLevelComment(commentText, currentUser){
   setAllComments((prevComments) => {
@@ -379,6 +395,7 @@ Secondly, we need to perform a depth first traversal to find it since it is most
  * @param {parentId} - the id of the parent comment to which the reply is added to
 */
 function addReply(commentText: string, parentId:string){
+  // allComments and setAllComments are already defined with useState in CommentSection.tsx
   const commensWithReplies = [...allComments]
   addNestedCommentDFS(commentsWithReplies, commentText, parentId)
   setAllComments(commentsWithReplies)
@@ -459,22 +476,37 @@ function deleteNestedCommentDFS(
 }
 ```
 
-## Problems
+## Drawbacks and Trade-offs
 
-.....in progress (ignore)
+Just becuase you can solve it recursively doesn't mean you should! If there is an iterative solution that is more efficient, then you should use that instead.
 
-1. Using Recursion in production apps
-2. Space and Time Complexity Trade-offs.
+Here are some of the common issues with recursion.
 
-## Wrapping Up
+1. **Stack Overflow** - If the depth of the tree is too large, the recursive function will keep calling itself until the stack overflows, causing your app to crash.
 
-This has been an fun ride for me. From diagramming, editting, debugging, coding, testing and to the final version of this post. There is many more ideas currently in development and if you loved this, you should subsribe down below. Your comments are welcome as well.
+2. **Performance Overhead** - The larger the tree, the more function calls are going to be made and the more memory is going to be used. Overall, your app will be slower.
+
+3. **Debugging** - Debugging recursive functions can be a nightmare. It's easy to get lost in the recursive calls and lose track of what's happening. Even more crazy is when there are multiple base and recursive cases.
+
+Using recursion in production should be done with caution. It's not always the best solution, but when it is, it's a beautiful thing.
+
+## Conclusion
+
+This has been a fun ride for me. From diagramming, editting, debugging, coding, testing and to the final version of this post. There is many more ideas currently in development and if you loved this, you should consider subsribe down below. Your comments and feedback are welcome as well.
 
 Here are some interesting things you can include on your own.
 
-1. Connect to a nosql database (firebase/supabase)
+1. Connect to a database to persist the comments.
 2. Include Web sockets for realtime comment updates from different users
-3. Comment Notifications
+3. Add Comment Notifications
+
+## Credits and Acknowledgements
+
+Shoutouts to these gurus for making this write-up better with their feedback and suggestions.
+
+- David Quarshie
+- Ariff Abdul Hadid
+- Assan Ewudzi Nathaniel
 
 ```ts:thanks.ts
 console.log('Thanks for reading');
