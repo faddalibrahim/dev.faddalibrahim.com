@@ -4,7 +4,7 @@ date: '2024-02-28'
 tags: ['algorithms', 'recursion']
 draft: false
 summary: 'a recursive nested comment system with reactjs'
-images: ['/static/images/nested-comments/cover-img.jpg']
+images: ['/static/images/nested-comments/cover-img-larger.jpg']
 ---
 
 ![Cover Image](/static/images/nested-comments/cover-img.svg)
@@ -199,7 +199,7 @@ function addCommentWithDFS(
       return;
     }
 
-    addCommentWithDFS(comment, comment.id, commentText)
+    addCommentWithDFS(currComment, currComment.id, commentText)
 
   }
 }
@@ -260,7 +260,7 @@ Secondly, javascript events like `onChange` or `onClick` for passing data around
 
 ![React App Hierarchy](/static/images/nested-comments/react-app-hierarchy.svg)
 
-### Extending the `Comment Interface`
+### Extending the Comment Interface
 
 Let's extend the previous **Comment** interface to include **id** and **user** and **dates**.
 
@@ -280,9 +280,9 @@ interface Comment {
 }
 ```
 
-### Rendering a single comment using `CommentBlock.tsx`
+### Rendering a single comment using CommentBlock.tsx
 
-The `**CommentBlock.tsx**` component is the visual representation of a single comment. It is what users would see and interact with. It takes a comment data as an input prop and renders it on the screen.
+The `CommentBlock` component is the visual representation of a single comment. It is what users would see and interact with. It takes a comment data as an input prop and renders it on the screen.
 
 Additionally, this component will recursively render any replies/sub-comments for the current comment.
 
@@ -309,11 +309,11 @@ export default function CommentBlock({comment}){
 
 ```
 
-### Rendering all comments to the screen using `CommentThread.tsx`
+### Rendering all comments to the screen using CommentThread.tsx
 
-This component will take an array of all the comments, loop through and render them to the screen by passing each comment's data to `**CommentBlock.tsx**`
+This component will take an array of all the comments, loop through and render them to the screen by passing each comment's data to `CommentBlock`
 
-By looping through and passing each comment's data to `CommentBlock.tsx`, it starts the recursive chain that results in the rendering of sub comments for each top-level comment.
+By looping through and passing each comment's data to `CommentBlock`, it starts the recursive chain that results in the rendering of sub comments for each top-level comment.
 
 ```tsx:CommentThread.tsx
 export default function CommentThread({allComments}) {
@@ -326,7 +326,7 @@ export default function CommentThread({allComments}) {
 }
 ```
 
-Finally, `**CommentSection.tsx**` encloses everything. It is also where comment state is defined and pass down as **props** to `**CommentThread**` and `**CommentBlock**`.
+Finally, `**CommentSection.tsx**` encloses everything. It is also where state is defined and pass down as **props** to `CommentThread` and `CommentBlock`.
 
 ```tsx:CommentSection.tsx
 export default function CommentSection(){
@@ -388,9 +388,9 @@ function addTopLevelComment(commentText, currentUser){
 
 **2. Adding a comment as a child(reply)**
 
-For this, we need to know exactly where to insert the comment like we deduced before in the **Part 1 of this post**. What do we need to know? The **id** of the parent comment to which we are attaching the reply.
+For this, we need to know exactly where to insert the comment like we deduced before in the **Part 1** of this post. What do we need to know? The **id** of the parent comment to which we are attaching the reply.
 
-Secondly, we need to perform a depth-first traversal to find it since it is most likely deep down the comment tree.
+Secondly, we need to perform **DFS** to find it since it will be deep down the comment tree.
 
 ```ts
 /**
@@ -409,7 +409,7 @@ function addReply(commentText: string, parentId:string){
 /**
  * performs DFS on a comment subtree to update its children
  *
- * @param {commentWithReplies} - the comment subtree
+ * @param {commentsWithReplies} - the comment subtree
  * @param commentText - the text of the new comment to be added as a child
  * @param {parentId} - the parent comment to search for
 */
@@ -433,13 +433,14 @@ function addNestedCommentDFS(
     }
   }
 
-
 }
 ```
 
 ### Deleting a comment
 
-Again, from Part 1 of this post, we deduced that we needed to know **comment's id** and its **parent's id**. If it has no parent id, then its a top level comment, other wise its a nested comment reply.
+Again, from **Part** 1, we figured out that we needed to know the **comment's id** and its **parent's id**. If it has no parent, then its a top level comment, other wise its a nested comment reply.
+
+> NB: Deleting a comment automatically deletes its chldren as well
 
 **1. Deleting a top level comment**
 
@@ -459,7 +460,7 @@ function deleteTopLevelComment(commentId: string) {
 **2. Deleting a nested comment/reply**
 
 ```ts
-function deleteReply() {
+function deleteReply(commentId: string, parentId: string) {
   const commentsWithReplies = [...allComments]
   deleteNestedCommentDFS(commentsWithReplies, commentId, parentId)
   setAllComments(commentsWithReplies)
@@ -472,10 +473,11 @@ function deleteNestedCommentDFS(
 ) {
   for (let i = 0; i < commentsWithReplies.length; i++) {
     const comment = commentsWithReplies[i]
+
     if (comment.id === parentId) {
       comment.replies = comment.replies.filter((comment) => comment.id !== commentId)
     } else {
-      deleteNestedComment(comment.replies, commentId, parentId)
+      deleteNestedCommentDFS(comment.replies, commentId, parentId)
     }
   }
 }
