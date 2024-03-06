@@ -151,9 +151,9 @@ function logCommentWithDFS(comment: Comment) {
 
 To add a comment to the tree, we need to know exactly where to attach it. A comment can either be a **top-level comment** or a **sub-comment (reply)**.
 
-For **sub-comments**, we need to know the **id** of the parent comment they belong to since they will be deeply nested in the tree.
+For **sub-comments**, we need to know the **id** of the parent comment they belong to. By performing **DFS**, we are able to go lower levels to find that parent and then attach the sub-comment.
 
-**Top level Comments** dont have parents; they are right at the top level and there is no need to go any levels below to attach them. Therefore, we can add them directly to the children of the **imaginary/fake** root.
+**Top level Comments** dont have parents; they are right at the top level and there is no need to go any levels below to attach them. Hence, we can add them directly to the children of the **imaginary/fake** root.
 
 ```ts:addCommentWithDFS.ts
 const fakeRoot = {
@@ -199,7 +199,7 @@ function addCommentWithDFS(
       return;
     }
 
-    addCommentWithDFS(currComment, currComment.id, commentText)
+    addCommentWithDFS(currComment, parentId, commentText)
 
   }
 }
@@ -512,7 +512,7 @@ Here are some interesting things you can include on your own.
 Shoutouts to these gurus for making this write-up better with their feedback and suggestions.
 
 - David Quarshie
-- Abdul Ariff Hadid
+- Abdul Sabit Ariff
 - Assan Ewudzi Nathaniel
 
 ```ts:Thanks.ts
