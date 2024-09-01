@@ -1,0 +1,118 @@
+---
+title: 'The simple math behind log(n) time complexity'
+date: '2024-08-31'
+tags: ['algorithms', 'logarithm']
+draft: false
+summary: 'A deep dive into logarithmic time complexity'
+images: ['/static/images/logn/binary-search-illustration.svg']
+---
+
+# Introduction
+
+I know you are quite the algo whiz, but here is a question that might knock you off your high horse - **what does a time complexity of $$log(n)$$ really mean?**
+
+Well, you would reference binary search and say, halving the problem size at each step results in $$log n$$. But it's still vague. What does $$log$$ even mean? How did $$log$$ steal the spotlight? What's the root derivation? Where does it come from? Unlike $$n$$ and $$n^2$$, which are quite intuitive, $$log(n)$$ is derived quite differently.
+
+In 3 steps, I will build upon micro analogies already familiar to you to lead to that big eureka moment. Calmly stay with me and let's find out!
+
+<TOCInline toc={props.toc} exclude="Introduction" />
+
+## Inverse operations in mathematics
+
+Let me bore you a little with primary school math - Plus (+) is the opposite of minus (-) and division (/) is the opposite of multiplication (\*).
+
+As such, $$8 + 2 = 10$$ can be re-written as $$8 - 10 = -2$$. In natural language, we say `2 added to 8 is 10` and `10 substracted from 8 is -2` respectively. There are a few other ways to re-arrange the same equation but expressing them in natural language will be semantically different. The same can be done for `2 * 10 = 20` and `2 = 20/10`.
+
+This simple but yet powerful logic is the reason we are able to easily solve algebraic equations. We could go a bit futher to reference trigonometric and square root inversions, but we have enough base to proceed.
+
+## Indices and Logarithms
+
+Indices are intuitive. $$3^4 = 81$$ is mathematically read as `3 raised to the power of 4 is 81`. In natural language, `multiplying 3 by itself 4 times gives 81`.
+
+Here comes the sharp curve - Logarithms, the inverse of indices.
+
+Just like we could re-write $$8 + 2 = 10$$ as $$8 - 10 = -2$$, we could also re-write $$3^4 = 81$$ as $$\log_{3} 81 = 4$$.
+
+The image below summarizes the inverse relationship.
+
+<Image alt="ocean" src="/static/images/logn/log-indices-inverse.svg" width={900} height={400} />
+
+$$\log_{3} 81 = 4$$ is mathematically read as `log base 3 of 81 is 4`. Expressing in natural languge is where it makes a lot of sense.
+
+$$3^4 = ?$$ : `3 raised to the power/exponent of 4 is what?`
+
+$$\log_{3} 81 = ?$$ : `To get 81, what power/exponent do we raise 3 to?` or much clearer,
+`To get 81, how many times do we need to multiply 3 by itself?`
+
+Logarithm rephrases the question by begining with the **ANSWER!** (look at the diagram again)
+
+> $$3^4 = 81 \iff \log_{3} 81 = 4$$
+
+## The math
+
+In binary search, we half the problem size repeatedly to get to to a size of 1.
+
+The time complexity is basically, how many times do we need to half the problem size to finally get to that 1. Sounds familiar? Absolutely yes!
+
+In the illustration below, the input size is 8, which gets halved 3 times to get the final input size of 1
+
+<Image
+  alt="binary search illustration"
+  src="/static/images/logn/binary-search-illustration.svg"
+  width={900}
+  height={100}
+/>
+
+So if our initial problem size is n, mathematically, all we are saying is
+
+$$
+n *  \frac{1}{2} * \frac{1}{2} * \frac{1}{2} * \frac{1}{2} ... = 1
+$$
+
+if we use `x` to represented that unknown number of times needed to halve the problem size to 1, we now have
+
+$$
+n * \left(\frac{1}{2}\right) ^ x = 1
+$$
+
+which, upon further simplication, becomes
+
+$$
+2 ^ x = n
+$$
+
+Oh wait.. we have seen this before in our indices and algorithms conversation from before.
+
+From here, we can proceed in 2 ways
+
+1. Rewrite the index equation as a logarithm as function of X
+
+$$\log_{2} n = x$$
+
+Essentially
+
+$$2^x = n \iff \log_{2} n = x$$
+
+2. Solve for x using rules of logarithms
+
+$$
+2 ^ x = n
+$$
+
+$$
+\log_{2}2 ^ x = \log_2 n
+$$
+
+$$
+x\log_{2}2 = \log_2 n
+$$
+
+$$
+x = \log_2 n
+$$
+
+Bingo
+
+## Conclusion
+
+## References
