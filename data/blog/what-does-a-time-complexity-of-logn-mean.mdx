@@ -9,9 +9,11 @@ images: ['/static/images/logn/binary-search-illustration.svg']
 
 # Introduction
 
-I know you are quite the algo whiz, but here is a question that might knock you off your high horse - **what does a time complexity of $$log(n)$$ really mean?**
+I know you are quite the algo wonderkid, but here is a question that might knock you off your high horse - **what does a time complexity of $$log(n)$$ really mean?**
 
-Well, you would reference binary search and say, halving the problem size at each step results in $$log n$$. But it's still vague. What does $$log$$ even mean? How did $$log$$ steal the spotlight? What's the root derivation? Where does it come from? Unlike $$n$$ and $$n^2$$, which are quite intuitive, $$log(n)$$ is derived quite differently.
+Well, you would reference binary search and say, halving the problem size at each step results in $$log(n)$$. But it's still vague. What does $$log$$ even mean? How did $$log$$ steal the spotlight? What's the root derivation? Where does it come from?
+
+Unlike $$n$$ and $$n^2$$, which are quite intuitive, $$log(n)$$ is derived quite differently.
 
 In 3 steps, I will build upon micro analogies already familiar to you to lead to that big eureka moment. Calmly stay with me and let's find out!
 
@@ -21,38 +23,42 @@ In 3 steps, I will build upon micro analogies already familiar to you to lead to
 
 Let me bore you a little with primary school math - Plus (+) is the opposite of minus (-) and division (/) is the opposite of multiplication (\*).
 
-As such, $$8 + 2 = 10$$ can be re-written as $$8 - 10 = -2$$. In natural language, we say `2 added to 8 is 10` and `10 substracted from 8 is -2` respectively. There are a few other ways to re-arrange the same equation but expressing them in natural language will be semantically different. The same can be done for `2 * 10 = 20` and `2 = 20/10`.
+As such, $$8 + 2 = 10$$ can be re-written as $$8 - 10 = -2$$. In natural language, we say `2 added to 8 is 10` and `10 subtracted from 8 is -2` respectively. There are a few other ways to re-arrange the same equation but expressing them in natural language will be different. The same can be applied to `2 * 10 = 20` and `2 = 20/10`.
 
-This simple but yet powerful logic is the reason we are able to easily solve algebraic equations. We could go a bit futher to reference trigonometric and square root inversions, but we have enough base to proceed.
+This simple yet powerful logic is the reason we are able to easily solve algebraic equations. We could go a bit further to reference trigonometric and square root inversions, but we have enough base to proceed.
 
 ## Indices and Logarithms
 
 Indices are intuitive. $$3^4 = 81$$ is mathematically read as `3 raised to the power of 4 is 81`. In natural language, `multiplying 3 by itself 4 times gives 81`.
 
-Here comes the sharp curve - Logarithms, the inverse of indices.
+Now let's introduce Logarithms, which are the inverse of indices.
 
-Just like we could re-write $$8 + 2 = 10$$ as $$8 - 10 = -2$$, we could also re-write $$3^4 = 81$$ as $$\log_{3} 81 = 4$$.
+Just as we can re-write $$8 + 2 = 10$$ as $$8 - 10 = -2$$, we can also re-write $$3^4 = 81$$ as $$\log_{3} 81 = 4$$.
 
 The image below summarizes the inverse relationship.
 
 <Image alt="ocean" src="/static/images/logn/log-indices-inverse.svg" width={900} height={400} />
 
-$$\log_{3} 81 = 4$$ is mathematically read as `log base 3 of 81 is 4`. Expressing in natural languge is where it makes a lot of sense.
+$$\log_{3} 81 = 4$$ is mathematically read as `log base 3 of 81 is 4`. Expressing in natural language is where it makes a lot of sense.
 
-$$3^4 = ?$$ : `3 raised to the power/exponent of 4 is what?`
+$$3^4 = ?$$ :
 
-$$\log_{3} 81 = ?$$ : `To get 81, what power/exponent do we raise 3 to?` or much clearer,
-`To get 81, how many times do we need to multiply 3 by itself?`
+- Natual Language : `3 raised to the power/exponent of 4 is what?`
 
-Logarithm rephrases the question by begining with the **ANSWER!** (look at the diagram again)
+$$\log_{3} 81 = ?$$ :
+
+- Natural Language: `To get 81, what power/exponent do we raise 3 to?`
+- Or more clearly: `To get 81, how many times do we need to multiply 3 by itself?`
+
+Notice how the Logarithms rephrase the question by starting with the **ANSWER!** (Refer back to the diagram for a visual representation)
 
 > $$3^4 = 81 \iff \log_{3} 81 = 4$$
 
 ## The math
 
-In binary search, we half the problem size repeatedly to get to to a size of 1.
+In binary search, we repeatedly halve the problem size until we reduce it to a size of 1.
 
-The time complexity is basically, how many times do we need to half the problem size to finally get to that 1. Sounds familiar? Absolutely yes!
+The time complexity is basically how many times do we need to halve the problem size to reach that final size of 1. Sounds familiar? Absolutely yes - because that is exactly what logarithms represent!
 
 In the illustration below, the input size is 8, which gets halved 3 times to get the final input size of 1
 
@@ -63,56 +69,75 @@ In the illustration below, the input size is 8, which gets halved 3 times to get
   height={100}
 />
 
-So if our initial problem size is n, mathematically, all we are saying is
+Hence, given an initial problem size of `n`, mathematically, all we are saying is
 
 $$
-n *  \frac{1}{2} * \frac{1}{2} * \frac{1}{2} * \frac{1}{2} ... = 1
+n *  \frac{1}{2} * \frac{1}{2} * \frac{1}{2} * \frac{1}{2} * ... = 1
 $$
 
-if we use `x` to represented that unknown number of times needed to halve the problem size to 1, we now have
+if we use `x` to represent that unknown number of times needed to halve the problem size to 1, we now have
 
 $$
 n * \left(\frac{1}{2}\right) ^ x = 1
 $$
 
-which, upon further simplication, becomes
+which, upon further simplification, becomes
+
+$$
+n * \frac{1^x}{2^x} = 1
+$$
+
+$$
+n * 1^x = 1 * 2^x
+$$
+
+$$
+n = 2 ^ x
+$$
 
 $$
 2 ^ x = n
 $$
-
-Oh wait.. we have seen this before in our indices and algorithms conversation from before.
 
 From here, we can proceed in 2 ways
 
-1. Rewrite the index equation as a logarithm as function of X
-
-$$\log_{2} n = x$$
-
-Essentially
+**1. Directly rewrite the exponential equation as a logarithm**
 
 $$2^x = n \iff \log_{2} n = x$$
 
-2. Solve for x using rules of logarithms
+**2. Mathematically solve for x using rules of logarithms**
 
 $$
 2 ^ x = n
 $$
+
+Take the logarithm (base 2) of both sides:
 
 $$
 \log_{2}2 ^ x = \log_2 n
 $$
 
+Apply the logarithm Power Rule $$\log_b (a^c) = c \log_b a$$
+
 $$
 x\log_{2}2 = \log_2 n
 $$
+
+Apply the Identity Rule $$\log_b b = 1$$
+
+$$
+x \cdot 1 = \log_2 n
+$$
+
+Finally:
 
 $$
 x = \log_2 n
 $$
 
-Bingo
-
-## Conclusion
+Mic Drop!
 
 ## References
+
+[Logarithm Fundamentals - 3Blue1Brown](https://www.youtube.com/watch?v=cEvgcoyZvB4)  
+[Khan Academy - Logarithms](https://www.khanacademy.org/math/engageny-alg2/alg2-3)
