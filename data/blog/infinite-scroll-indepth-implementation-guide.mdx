@@ -1,0 +1,440 @@
+---
+title: 'Infinite Scroll -- Indepth implementation guide'
+date: '2025-01-09'
+tags: ['web', 'infinite-scroll', 'intersection observer']
+draft: false
+summary: 'An indepth implementation guide for '
+images: ['/static/images/logn/binary-search-illustration.svg']
+---
+
+# Introduction
+
+Infinite scroll is a UX design pattern on social media sites that dynamically loads in more content as users scroll, giving the illusion of an endless feed. Think of X, tiktok and instagram feeds that keep you hooked to the screens on a doomscroll.
+
+Closely related to this pattern is **pagination**, usually seen on e-commerce sites, which allows users to explore content using next/prev buttons with numbers to jump to specific pages.
+
+A juxtaposition of both patterns often leads to a recurring question in web/app development : What should you use – Infinite Scroll or Pagination? As this is more of a UX question, here is an [article](https://uxplanet.org/ux-infinite-scrolling-vs-pagination-1030d29376f1) with a comprehensive answer. However, this post solely revolves around the technical implementation of Infinite Scroll.
+
+Find here the complete [code]() and [demo]()
+
+<TOCInline toc={props.toc} exclude="Introduction" />
+
+## The Big Question
+
+Let’s start by asking the right questions – **How do we know we are at the bottom of the page and therefore need to load in more content?** There are 2 ways to do this : **Web Geometry** and **Intersection Observer**.
+
+## Using Web Geometry
+
+### Logic
+
+The browser inherently keeps track of certain values during interactions and navigation. For example, when you click on the screen, the browser knows exactly the co-ordinates of the point clicked. Or when you scroll, it knows how far the distance and a whole lot more. We will manipulate these values from the browser to implement our infinite scroll. Here is a [useful tool](https://swimyoung.github.io/web-coordinates/) that visualizes the browser's geometry.
+
+Using the X feed as a reference, assume there is an initial load of **9 tweets**. Because your phone has a fixed height and can only show **6 tweets**, it leaves **3 tweets** hidden until you scroll.
+
+The height of the visible portion of the scrollable content (the 6 tweets), is the **clientHeight**
+
+The total height of the scrollable content, including the portion not visible (6 visible tweets + 3 hidden tweets) is the **scrollHeight**
+
+In the diagram below, the **green** portion is the **clientHeight**  
+Then the green portion together with the dashed portion is the **scrollHeight**
+
+<Image
+  alt="binary search illustration"
+  src="/static/images/infinite-scroll/web-geometry-01.svg"
+  width={900}
+  height={100}
+/>
+
+Now what happens when we scroll?
+
+Some of the visible tweets move up out of the viewport, allowing some of the hidden tweets from the bottom to move up into the viewport. When this happens, a new value called **scrollTop** comes into play.
+
+**scrollTop** is the vertical offset of the scrollbar from the top of the container. In simple terms, it tells us how far down the user has scrolled. The more the user scrolls, the more the scrollTop value increases. This scrollTop is essentially made up of the tweets that moved up out of the viewport during scroll.
+
+Hence, at any point in time during scrolling, there are hidden tweets at the top and bottom. As already mentioned, the top part forms the **scrollTop**. The height of the bottom part (let's call it **bottomHiddenTweetsHeight**), is non-existent in web geometry and its value can't be extracted from the browser. However, its height can be derived...
+
+You can already see that
+
+$$ scrollTop + clientHeight + bottomHiddenTweetsHeight = scrollHeight $$
+
+<Image
+  alt="binary search illustration"
+  src="/static/images/infinite-scroll/web-geometry-02.svg"
+  width={900}
+  height={100}
+/>
+
+Now, Imagine we continue scrolling and exhaust all the tweets. You can already guess what happens, right? There is no more **bottomHiddenTweetsHeight**. All the hidden tweets are now within the **scrollTop** and **clientHeight** only.
+
+Therefore, when we have exhausted all tweets `scrollTop + clientHeight` becomes equal to the `scrollHeight`
+
+> $$scrollTop + clientHeight = scrollHeight$$
+
+<Image
+  alt="binary search illustration"
+  src="/static/images/infinite-scroll/web-geometry-03.svg"
+  width={900}
+  height={100}
+/>
+
+Bingo! That's how we know we are at the bottom and therefore need to load more tweets.
+
+```ts:TweetsPage.ts
+
+if(scrollTop + clientHeight === scrollHeight){
+    loadMoreTweets()
+}
+
+```
+
+### Code
+
+In this section, we incrementally build the logic, adding more and more code to each previous step.
+It's important however to note that this implementation will be a raw one to ease understanding. There are sections futher down to discuss **Clean Code** and **Optimization**
+
+#### Step 1 : Create the barebones tweets page
+
+Let's call it X
+
+```ts:X.tsx
+export default function X(){
+    return <div>tweets will be loaded here</div>
+}
+```
+
+#### Step 2 : Add scroll listener to the tweets main container
+
+Here, we create a reference to the container called `containerRef` and attach it to the returning div container
+
+Secondly, we use `useEffect` hook to immediately attach the scroll event to the container when the page first loads. The return function in the **useEffect** removes the scroll listener when the component unmounts.
+
+The callback function for the scroll listener is empty for now
+
+```ts:X.tsx
+import { useEffect, useRef } from "react";
+
+export default function X(){
+    const containerRef = useRef(null);
+
+    useEffect(() => {
+        const container = containerRef.current;
+
+        if (!container) return;
+
+        container.addEventListener("scroll", () => {}); // emty callback; to be implemented in next step
+
+        return () => container.removeEventListener("scroll", () => {}); // remove listener on unmount
+    }, []);
+
+    return <div ref={containerRef}>tweets will be loaded here</div>
+}
+```
+
+#### Step 3 : Create the callback function for the scroll listener
+
+When scrolling is detected, the callback function, `handleScroll`, is triggered. In the same function, there is a check to detect if we are at the bottom of the container.
+
+However, we don't immediately fetch new tweets within this conditional check. The next step explains why
+
+```ts:X.tsx
+import { useEffect, useRef } from "react";
+
+export default function X(){
+    const containerRef = useRef(null);
+
+    const handleScroll = () => {
+        const container = containerRef.current;
+
+        if (!container) return;
+
+        const { scrollTop, clientHeight, scrollHeight } = container;
+
+        // Check if we've scrolled to the bottom
+        if (scrollTop + clientHeight >= scrollHeight) {
+          setPage((prevPage) => prevPage + 1)
+        }
+    };
+
+
+    useEffect(() => {
+        const container = containerRef.current;
+
+        if (!container) return;
+
+        container.addEventListener("scroll", handleScroll); // emty callback
+
+        return () => container.removeEventListener("scroll", handleScroll); // remove listener on unmount
+    }, []);
+
+    return <div ref={containerRef}>tweets will be loaded here</div>
+}
+```
+
+#### Step 3 : Trigger tweet fetching with a page state
+
+Why do we need a `page` state?
+
+Think of it as an indicator for the next set of tweets that need to be fetched. Assuming we are fetching tweets in sets of 4, Page 1 would correspond to the first set of 4 tweets. When we have scrolled through all 4 tweets, Page 2 would correspond to the second set of 4 tweets and so on. This `page` value is essential for the backend api to know what set of tweets to return to the frontend (More on this later)
+
+<Image
+  alt="binary search illustration"
+  src="/static/images/infinite-scroll/web-geometry-04.svg"
+  width={900}
+  height={100}
+/>
+
+We start with an initial page value of 1, then increase it successively. Each increase is what will trigger the tweet fetch. But how? By using another useEffect and adding the `page` state to its dependency array. That way, whenever `page` is updated, the useEffect runs, which will call the actual `fetchTweets` function!
+
+In the code, notice how we pass the page value as a parameter to the `fetchTweets` function!
+
+<Image
+  alt="binary search illustration"
+  src="/static/images/infinite-scroll/infinite-scroll-cycle.svg"
+  width={900}
+  height={100}
+/>
+
+```ts:X.tsx
+import { useState, useEffect, useRef } from "react";
+
+export default function X(){
+    const containerRef = useRef(null);
+    const [page, setPage] = useState(1);
+
+    const handleScroll = () => {
+        const container = containerRef.current;
+
+        if (!container) return;
+
+        const { scrollTop, clientHeight, scrollHeight } = container;
+
+        // Check if we've scrolled to the bottom
+        if (scrollTop + clientHeight >= scrollHeight) {
+          setPage((prevPage) => prevPage + 1)
+        }
+    };
+
+    useEffect(() => {
+        const container = containerRef.current;
+
+        if (!container) return;
+
+        container.addEventListener("scroll", handleScroll); // emty callback
+
+        return () => container.removeEventListener("scroll", () => {}); // remove listener on unmount
+    }, []);
+
+    // Fetch tweets when the page changes
+    useEffect(() => {
+        fetchTweets(page);
+    }, [page]);
+
+    return <div ref={containerRef}>tweets will be loaded here</div>
+}
+```
+
+#### Step 4 : Create the fetchTweets function
+
+```ts:X.tsx
+import { useState, useEffect, useRef } from "react";
+
+export default function X(){
+    const containerRef = useRef(null);
+    const [page, setPage] = useState(1);
+    const [tweets, setTweets] = useState([]);
+
+    /************************** handleScroll function *************************************************/
+    const handleScroll = () => {
+        const container = containerRef.current;
+
+        if (!container) return;
+
+        const { scrollTop, clientHeight, scrollHeight } = container;
+
+        // Check if we've scrolled to the bottom
+        if (scrollTop + clientHeight >= scrollHeight) {
+          setPage((prevPage) => prevPage + 1)
+        }
+    };
+
+    /************************** Add scroll event listener *************************************************/
+    useEffect(() => {
+        const container = containerRef.current;
+
+        if (!container) return;
+
+        container.addEventListener("scroll", handleScroll); // emty callback
+
+        return () => container.removeEventListener("scroll", () => {}); // remove listener on unmount
+    }, []);
+
+    /************************* Fetch tweets when the page changes **************************************************/
+    useEffect(() => {
+        fetchTweets(page);
+    }, [page]);
+
+    /***************************** Fetch Tweets Function **********************************************/
+    const fetchTweets = async (currentPage: number) => {
+        try {
+            const response = await fetch(`/api/tweets?page=${currentPage}`);
+
+            // Check if the request was successful
+            if (!response.ok) {
+                throw new Error('Failed to fetch tweets');
+            }
+
+            const data = await response.json();
+
+            setTweets(data.tweets);
+        } catch (error) {
+            // Handle error if the fetch fails
+            console.error("Error fetching tweets:", error);
+        }
+    };
+
+    return <div ref={containerRef}>tweets will be loaded here</div>
+}
+```
+
+#### Step 5 : Render tweets in the container
+
+```ts:X.tsx
+import { useState, useEffect, useRef } from "react";
+
+export default function X(){
+    const containerRef = useRef(null);
+    const [page, setPage] = useState(1);
+    const [tweets, setTweets] = useState([]);
+
+    /************************** handleScroll function *************************************************/
+    const handleScroll = () => {
+        const container = containerRef.current;
+
+        if (!container) return;
+
+        const { scrollTop, clientHeight, scrollHeight } = container;
+
+        // Check if we've scrolled to the bottom
+        if (scrollTop + clientHeight >= scrollHeight) {
+          setPage((prevPage) => prevPage + 1)
+        }
+    };
+
+    /************************** Add scroll event listener *************************************************/
+    useEffect(() => {
+        const container = containerRef.current;
+
+        if (!container) return;
+
+        container.addEventListener("scroll", handleScroll); // emty callback
+
+        return () => container.removeEventListener("scroll", () => {}); // remove listener on unmount
+    }, []);
+
+    /************************* Fetch tweets when the page changes **************************************************/
+    useEffect(() => {
+        fetchTweets(page);
+    }, [page]);
+
+    /***************************** Fetch Tweets Function **********************************************/
+    const fetchTweets = async (currentPage: number) => {
+        try {
+            const response = await fetch(`/api/tweets?page=${currentPage}`);
+
+            // Check if the request was successful
+            if (!response.ok) {
+                throw new Error('Failed to fetch tweets');
+            }
+
+            const data = await response.json();
+
+            setTweets((prevTweets) => [...prevTweets, ...data.tweets]);
+        } catch (error) {
+            // Handle error if the fetch fails
+            console.error("Error fetching tweets:", error);
+        }
+    };
+
+    return (
+        <div ref={containerRef}>
+            {tweets.map((tweet) => (
+                <Tweet data={tweet} key={tweet.id}>
+            ))}
+        </div>
+    )
+}
+```
+
+## Using Intersection Observer API
+
+Using the Intersection Observer API is the better, cleaner and more intuitive way to implement infinite scrolling. This API allows you to detect when an element enters or exits in an area of another DOM element or the viewport.
+
+From the [MDN Docs](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API)
+
+> The Intersection Observer API lets code register a callback function that is executed whenever a particular element enters or exits an intersection with another element (or the viewport), or when the intersection between two elements changes by a specified amount
+
+This means there there is no need to keep recalculating scroll points over and over again! All we need to do is to add an anchor to the bottom of the tweets and when this anchor is scrolled into the viewport, more tweets get loaded.
+
+<Image
+  alt="binary search illustration"
+  src="/static/images/infinite-scroll/scroll-anchor.svg"
+  width={900}
+  height={100}
+/>
+
+<Image
+  alt="binary search illustration"
+  src="/static/images/infinite-scroll/scroll-anchor-02.svg"
+  width={900}
+  height={100}
+/>
+
+But how?
+
+### Code Implementation
+
+```ts
+const observer = new IntersectionObserver(callback, options)
+
+useEffect(() => {
+  const observerCallback: IntersectionObserverCallback = (entries) => {
+    const [entry] = entries
+    if (entry.isIntersecting && !isFetching) {
+      setCurrentPage((prevPage) => prevPage + 1)
+    }
+  }
+
+  observerRef.current = new IntersectionObserver(observerCallback, {
+    root: containerRef.current,
+    threshold: 1.0, // Trigger when the target is fully in view
+  })
+
+  const target = document.querySelector('#scroll-anchor')
+  if (target) observerRef.current.observe(target)
+
+  //   return () => {
+  //     observerRef.current?.disconnect()
+  //   }
+  return () => {
+    if (target) {
+      observer.unobserve(target)
+    }
+  }
+}, [isFetching])
+```
+
+## Clean Code
+
+## Optimizations
+
+### Dont wait to get to the bottom
+
+### Debounce
+
+### UseInfinite Hook
+
+### Virtualized List
+
+## React Native
+
+## Backend Code
