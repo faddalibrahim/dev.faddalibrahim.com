@@ -9,21 +9,21 @@ const siteMetadata = {
   siteUrl: 'https://blog.faddal.dev',
   siteRepo: 'https://github.com/faddalibrahim/my-dev-blog',
   github: 'https://github.com/faddalibrahim',
-  twitter: 'https://twitter.com/FaddalIbrahim',
+  // twitter: 'https://twitter.com/FaddalIbrahim',
   linkedin: 'https://www.linkedin.com/in/faddalibrahim',
   locale: 'en-US',
   siteLogo: `${process.env.BASE_PATH || ''}/static/images/logo.png`,
   socialBanner: `${process.env.BASE_PATH || ''}/static/images/faddal-twitter-card.jpg`,
   mastodon: 'https://mastodon.social/@mastodonuser',
-  email: 'address@yoursite.com',
-  x: 'https://twitter.com/x',
+  // email: 'address@yoursite.com',
+  x: 'https://x.com/faddaldotdev',
   // twitter: 'https://twitter.com/Twitter',
-  facebook: 'https://facebook.com',
-  youtube: 'https://youtube.com',
-  threads: 'https://www.threads.net',
-  instagram: 'https://www.instagram.com',
-  medium: 'https://medium.com',
-  bluesky: 'https://bsky.app/',
+  // facebook: 'https://facebook.com',
+  // youtube: 'https://youtube.com',
+  // threads: 'https://www.threads.net',
+  // instagram: 'https://www.instagram.com',
+  // medium: 'https://medium.com',
+  // bluesky: 'https://bsky.app/',
   // set to true if you want a navbar fixed to the top
   stickyNav: false,
   analytics: {
@@ -101,4 +101,4 @@ const siteMetadata = {
   },
 }
 
-module.exports = siteMetadata
+export default siteMetadata
