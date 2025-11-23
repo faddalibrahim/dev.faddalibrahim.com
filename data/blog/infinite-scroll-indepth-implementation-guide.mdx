@@ -1,27 +1,27 @@
 ---
-title: 'Infinite Scroll -- Indepth implementation guide'
-date: '2025-01-09'
-tags: ['web', 'infinite-scroll', 'intersection observer']
+title: 'Infinite Scroll — An Indepth implementation guide'
+date: '2025-11-23'
+tags: ['web', 'infinite-scroll', 'intersection observer', 'web geometry']
 draft: false
-summary: 'An indepth implementation guide for '
+summary: 'An indepth implementation guide on infinite scroll using ReactJS. Includes both Web Geometry and Intersection Observer API methods.'
 images: ['/static/images/infinite-scroll/cover-img.jpg']
 ---
+
+![Cover Image](/static/images/infinite-scroll/cover-img.jpg)
 
 # Introduction
 
 Because of **infinite scroll**, users can keep scrolling forever on their favorite social media apps without having to click on any buttons to load more content, providing a seamless experience that keeps them engaged.
 
-On a basic technical level, new content is fetched from the server when the user reaches the bottom of the currently loaded content. The newly fetched content is then dynamically added to the page, creating the illusion of an endless stream of information.
+On a basic technical level, new content is fetched from the server when the user reaches the bottom of the currently loaded page. This newly fetched content is then dynamically added to the page, creating the illusion of an endless stream of information.
 
-This post focuses on the indepth technical logic and implementation (using ReactJS) behind this technique.
-
-Find here the complete [code]() and [demo]()
+This post focuses on the indepth technical logic behind this technique and its implementation using ReactJS.
 
 <TOCInline toc={props.toc} exclude="Introduction" />
 
-## How do we know we need to fetch more content?
+## How do we know we are at the bottom of the page?
 
-The most important question to ask now is **How do we know we are at the bottom of the page and therefore need to fetch in more content?** There are 2 ways to do this : **Web Geometry** and **Intersection Observer**.
+**How do we know we are at the bottom of the page and therefore need to fetch more content?**. Answering this question unlocks the entire infinite scroll logic. There are 2 ways to do this : **Web Geometry** and **Intersection Observer**.
 
 ## Using Web Geometry
 
@@ -35,8 +35,8 @@ The height of the visible portion of the scrollable content (the 6 tweets), is t
 
 The total height of the scrollable content, including the portion not visible (6 visible tweets + 3 hidden tweets) is the **scrollHeight**
 
-In the diagram below, the **green background** portion is the **clientHeight**  
-Then the green portion together with the gray portion is the **scrollHeight**
+In the diagram below, the **green background** portion is the **clientHeight**.
+Then the green portion together plus the gray portion is the **scrollHeight**
 
 <Image
   alt="binary search illustration"
