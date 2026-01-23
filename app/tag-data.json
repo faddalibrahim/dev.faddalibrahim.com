@@ -2,11 +2,10 @@
   "web": 1,
   "infinite-scroll": 1,
   "intersection-observer": 1,
-  "algorithms": 2,
+  "web-geometry": 1,
+  "algorithms": 3,
   "logarithm": 1,
+  "operating-systems": 1,
   "recursion": 1,
-  "intro": 1,
-  "multi-author": 1,
-  "next-js": 1,
-  "feature": 1
+  "intro": 1
 }
