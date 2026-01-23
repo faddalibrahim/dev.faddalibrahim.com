@@ -1,11 +1,11 @@
 {
+  "algorithms": 3,
+  "operating-systems": 1,
   "web": 1,
   "infinite-scroll": 1,
   "intersection-observer": 1,
   "web-geometry": 1,
-  "algorithms": 3,
   "logarithm": 1,
-  "operating-systems": 1,
   "recursion": 1,
   "intro": 1
 }

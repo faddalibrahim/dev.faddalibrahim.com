@@ -11,11 +11,11 @@ images: ['/static/images/os-scheduling-algos/cover-img-larger.jpg']
 
 # Introduction
 
-When you are scrolling through the X feed, playing music and typing something on your notes app, to you it might feel like the computer is running all of them at the same time but it's actually not. The trick is through timesharing, where each program is run briefly in turns, but this happens so fast that it feels like they are running at the same time. 
+When you are scrolling through the X feed, playing music and typing something on your notes app, to you it might feel like the computer is running all of them at the same time but it's actually not. The trick is through **Time Sharing**, where each program is run briefly in turns, but this happens so fast that it feels like they are running at the same time. 
 
 This illusion is handled by the Operating System (OS)
 
-The hardware components (CPU, RAM etc) are useless until the Operating System manages them. Like a wand before it's waved by a wizard. In technical terms, we say that the Operating System **virtualizes** the hardware. Which is a way to say, it manages the hardware resources and determines what processes (programs) utilize them and in what manner.
+The hardware components (CPU, RAM etc) are useless until the OS manages them. Like a wand before it's waved by a wizard. In technical terms, we say that the OS **virtualizes** the hardware. Which is a way to say, it manages the hardware resources and determines what processes (programs) utilize them and in what manner.
 
 If the computer runs all of them at the same time, it will run out of resources and crash. Further more, if done carelessly, it will cause a lot of problems. For example, what if a process runs longer than expected? Or tries to perform restricted operations?
 
@@ -48,18 +48,18 @@ An example is network requests. When an API call is made to an endpoint, it take
   height={900}
 />
 
-> NB: The CPU runs the programs; The OS is the one that manages the CPU and determines which process to run and when. Don't be confused by this.
+> NB: The CPU runs the programs; The OS is the one that manages the CPU and determines which process the CPU should run and when.
 
-So back to our main question, **how does the OS decide which process to run next? for how long? when to switch between processes?**. To explore this, we will look at 4 scheduling policies: **First In First Out (FIFO)**, **Shortest Job First (SJF)**, **Round Robin (RR)**, and **Multi Level Queues (MLQ)**.
+So back to our main question, **how does the OS decide which process to run next? for how long? when to switch between processes?**. 
+
+To explore this, we will look at 4 scheduling policies, their trade-offs, and how they work. We will also implement them in TypeScript and visualize them using a simple playground tool I built. ([OS Scheduling Algorithms Playground](https://faddalibrahim.github.io/os-scheduling-algos/))
 
 Think of these as foundational models for how the OS performs scheduling. Modern CPUs use a hybrid and highly optimized schedulers inspired by these ideas.
 
 
 ## First In First Out (FIFO)
 
-This is the most basic scheduling policy. Works exactly as a queue. If 3 jobs A, B, and C with arrival times of 0, 1, and 2 respectively and each running for 10s each, the OS will run Job A first, then Job B, then Job C. Easy!
-
-> I am building this playground tool on the side to help with visualization. Check it out at [OS Scheduling Algorithms Playground](https://faddalibrahim.github.io/os-scheduling-algos/). I will update it with the different algorithms in the subsequent parts
+This is the most basic scheduling policy. Works exactly as a queue. If **3** jobs **A**, **B**, and **C** with arrival times of **0**, **1**, and **2** respectively and each running for **10s** each, the OS will run Job A first, then Job B, then Job C. Easy!
 
 <Image
   alt="FIFO"
@@ -68,7 +68,7 @@ This is the most basic scheduling policy. Works exactly as a queue. If 3 jobs A,
   height={900}
 />  
 
-Implementing this is simple.
+Typescript Implementation
 
 ```ts
 interface Job {
@@ -100,20 +100,9 @@ This works perfectly, but imagine a scenario where **Job A** takes **100s** to r
   height={900}
 />  
 
-Ugh! Of course we dont want this to happen. So what do we do? What if we relax the policy a bit and allow JobA to run for a while, however, whenever another Job arrives that takes less time to run, we switch to it? That is **Shortest Job First (SJF)**!
-
-See you in the next post!
+Ugh! Of course we dont want this to happen. So what do we do? What if we relax the policy a bit and allow jobs with short run times to run first? Could that be the answer? Let's find out in Part 2.
 
 
-Scheduling Policies
+## References
 
-Turnaround Time = Completion Time - Arrival Time
-
-
-
-Shortest Jobs First
-
-
-
-
-There is a lot more virtulization like Virtual Address Spacs, which will make this post unnecesarily long and unhelpful. You can can learn more about these and the Operating System itself from this open source book [Operating Systems: Three Easy Pieces](https://pages.cs.wisc.edu/~remzi/OSTEP/)
+- [Operating Systems: Three Easy Pieces](https://pages.cs.wisc.edu/~remzi/OSTEP/cpu-sched.pdf)   
