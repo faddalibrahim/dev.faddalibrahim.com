@@ -1,6 +1,10 @@
 {
   "algorithms": 3,
   "operating-systems": 1,
+  "ghost": 1,
+  "word-games": 1,
+  "trie": 1,
+  "minimax-algorithm": 1,
   "web": 1,
   "infinite-scroll": 1,
   "intersection-observer": 1,
