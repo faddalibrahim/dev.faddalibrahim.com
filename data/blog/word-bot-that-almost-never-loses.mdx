@@ -12,9 +12,9 @@ images: ['/static/images/word-bot/cover-image-larger.jpg']
 
 # Introduction
 
-I love word games and puzzles, so I have one currently under review on the App Store called Criket. Check it out [here](https://www.criket.app/). One of the games I’m yet to include is the Ghost game because though it looks simple, it has some interesting technical bumps I wanted to explore! Like the Minimax game theory tactic and the Trie data structure. I have built it separately [here](https://triebot.faddal.dev/) before I include it in the final app build.
+I love word games, so I have one currently under review on the App Store called [Criket](https://www.criket.app/). One of the games I’m yet to include is the **Ghost Game** because although it looks simple, it has some interesting technical curves I wanted to explore thoroughly! Like the Minimax game theory tactic and the Trie data structure. I have built it separately [here](https://triebot.faddal.dev/) before I include it in the final app build.
 
-The goal is to build a bot that almost never loses in the Ghost game. If you are not familiar with the Ghost game, it’s the first thing I explain after this paragraph
+The goal is to build a bot that almost never loses in the Ghost game. If you are not familiar with the game, it’s the first thing I explain after this paragraph
 
 
 <TOCInline toc={props.toc} exclude="Introduction" />
@@ -23,9 +23,9 @@ The goal is to build a bot that almost never loses in the Ghost game. If you are
 
 Players take turns adding letters to a growing word. The goal is to avoid being the one to complete a valid word, as that player loses.
 
-Assuming play resumes and `A` is played, the next player can play `P`, making the word `AP`, then the next player can play `P`, making the word `APP`, then the next player can play `L`, making the word `APPL`, then the next player can play `E`, making the word `APPLE`. Since `APPLE` is a valid word, the player who played `E` loses. It is the duty of the other player to highlight the completion of the word. This is called a `Word Bluff`! Otherwise play continues.
+Assuming play resumes and `A` is played, the next player can play `P`, making the word `AP`, then the next player can play `P`, making the word `APP` all the way till `APPLE`. Since `APPLE` is a valid word, the player who played `E` loses. It is the duty of the other player to highlight the completion of the word. This is called a `Word Call`.
 
-Another type of bluff a player can call is a `No Possible Word` bluff if they think the current set of letters does not form or lead to a valid word. If so, the player who called the bluff wins. Otherwise, he/she loses.
+A player can also issue a `Word Bluff` if they think the current set of letters does not form or will never lead to a valid word. If so, the player who called the bluff wins. Otherwise, he/she loses.
 
 Below is a flowchart summary 
 
@@ -39,20 +39,20 @@ Below is a flowchart summary
 
 ## How to avoid losing
 
-My computer science and leetcode muscles never atrophied so I knew exactly what to use : The `Trie` Data Structure and a `Greedy Algorithm`. I was right about the **Trie** because of the optimal time complexities (O(1) and O(N)) in word search and insertions, but wrong about the **Greedy approach**. I explain why later
+My computer science and leetcode muscles never atrophied so I knew exactly what to use : The `Trie Data Structure` and a `Greedy Algorithm`. I was right about the **Trie** because of the optimal `O(N)` time complexity in word search and insertion, but wrong about the **Greedy approach**. I explain why soon.
 
 Think about it. What do you need to win? You need to know all the words that will never end with you! But also factor in the fact that your opponent might choose other words. The question then becomes... **how do you determine these winning paths to force the outcome you want?**. 
 
 With the greedy approach I thought about, you would choose the best option available right now, which is unrealistic because there is no absolute *best option* if you can’t predict what your opponent plays. The best option will only be relative to what you have in mind. So if you have `Panama` in mind, the best option is to play `P` as the first and hope that your opponent plays along. But they could as well have `Peru` in mind, so they play `E` instead.
 
-Instead of choosing the best option right now (greedy approach), **minimax** game theory tactic simulates the future by pre-computing every possible winning and losing position in the word tree (Trie). So for every letter node, you know whether you are in a winning or losing position. Boom!
+Instead of choosing the best option right now (greedy approach), **minimax** game theory tactic simulates the future by pre-computing every possible winning and losing position in the **Trie**. So for every letter node, you know whether you are in a winning or losing position. Awesome, huh?
 
 
 ## Minimax Game Theory Tactic
 
-Lets start with these words in our trie `PP` and `PE`. Our  word tree (trie) will look like this…
+Lets start with these words in our trie `PP` and `PE`. Our  word tree will look like this…
 
-> Red nodes are losing positions
+> Red nodes are losing positions;
 > Green nodes are winning positions
 
 <Image
@@ -62,9 +62,9 @@ Lets start with these words in our trie `PP` and `PE`. Our  word tree (trie) wil
   height={400}
 />
 
-With the rules of the game, we know the endings `P` and `E` are losing positions because they complete words, which automatically makes the root `P` a winning position. Two observations here
+Applying the rules of the game, we know the ending nodes `P` and `E` are losing positions because they complete words, which automatically makes the root `P` a winning position. Two observations here
 
-1. If there are no children nodes, the current node is a losing one (the last P and E in the diagram have no children)
+1. If there are no children nodes, the current node is a losing one (the ending P and E nodes in the tree have no children)
 2. If the children are losing positions, the immediate parent node is a winning one.
 
 
@@ -78,9 +78,9 @@ Now lets expand this tree again…
 />
 
 
-By adding `A` as the root to have the words (APP, APE), the board state changes completely.
+By adding `A` as the root to have the words `APP` and `APE`, the board state changes completely.
 
-- As established before, the middle `P` is a Winning node because it can force a terminal loss. 
+- As established before, the middle `P` is a Winning node because it can force a terminal loss at the ending **P** and **E** nodes 
 - Now look at Root `A`. Its only move is to `P`. 
 - Because the opponent at `P` will now be in a Winning Position, the player at `A` is in a Losing Position
 
@@ -132,9 +132,9 @@ What you are basically doing throughout is `maxing` your chances while your oppo
 
 To do this, you need to know all the possible words that can be formed from the current set of letters. This is where the **Trie** data structure comes in. Then you can start from the base of the tree and assign **winning** and **losing** labels to the nodes just like we did progressively with our example above.
 
-## Building the word tree (Trie)
+## Building the Trie
 
-Talking about tries is a whole blog on its own. This video explains it best [Prefix Tree](https://www.youtube.com/watch?v=oobqoCJlHA0) but here is how the final Trie looks like
+Talking about tries is a whole blog on its own. This video explains it best [Prefix Tree](https://www.youtube.com/watch?v=oobqoCJlHA0) however here is how the final Trie looks like
 
 ```ts:Trie.ts
 // A node in the trie for each letter
@@ -244,16 +244,14 @@ class Trie {
 ```
 
 From here, everything else is just ReactJS and TailwindCSS to hook the Trie to a UI.
-Find the full code on my [GitHub repo](https://github.com/faddalibrahim/Triebot)..still tweaking it though! Play against the bot [here](https://triebot.faddal.dev/)
+Find the full code on my [GitHub repo](https://github.com/faddalibrahim/Triebot). I'm still tweaking it though! Play against the bot [here](https://triebot.faddal.dev/)
 
 
 ## Conclusion
 
-My first instinct (greedy approach) felt intuitive but broke down the moment I tried to account for an opponent who doesn't cooperate. Minimax forced me to think differently: instead of optimising for *right now*, you optimise for *every possible future*, which is a mindset shift that applies well in most games (tictactoe, chess, etc)
+My first instinct (greedy approach) felt intuitive but broke down the moment I tried to account for an opponent who doesn't cooperate. Minimax forced me to think differently: instead of optimising for *right now*, I optimised for *every possible future*, which is a mindset shift that applies well in most games (tictactoe, chess, etc)
 
-The "almost never loses" part of the title is shakey though. The bot plays perfectly given the words it knows — but if you steer the game toward an obscure word outside its dictionary, you might just catch it off guard. That's the fun of it.
-
-If you want to poke around the implementation, the full code is on [GitHub](https://github.com/faddalibrahim/Triebot) and you can play against the bot live at [triebot.faddal.dev](https://triebot.faddal.dev/). Go beat it if you can!
+The "almost never loses" part of the title is shakey though. The bot plays perfectly given the words it knows — but if you steer the game toward an obscure word outside its dictionary, you might just catch it off guard. That's the fun of it. Go beat it if you can!
 
 
 ## References
